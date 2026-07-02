@@ -56,7 +56,7 @@ public class SceneLoadService : BaseService<SceneLoadService>
         slider.gameObject.SetActive(true);
 
         // 3. 开始异步加载场景
-        var package = YooAssets.GetPackage(SceneLoadConstants.PackageName);
+        var package = YooAssets.GetPackage(YooAssetConstants.PackageName);
         SceneHandle handle = package.LoadSceneAsync(sceneLocation);
         // 进度条动态刷新
         float progress = 0;

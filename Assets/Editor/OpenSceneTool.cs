@@ -5,6 +5,7 @@ using UnityEditor.SceneManagement;
 public class OpenSceneTool : EditorWindow
 {
     private const string YooAssetScene = nameof(YooAssetScene);
+    private const string LoadMetadataScene = nameof(LoadMetadataScene);
     private const string StartScene = nameof(StartScene);
     private const string VillageScene = nameof(VillageScene);
 
@@ -73,6 +74,11 @@ public class OpenSceneTool : EditorWindow
         if (GUILayout.Button($"打开 {YooAssetScene} 场景"))
         {
             OpenTargetScene(YooAssetScene);
+        }
+
+        if (GUILayout.Button($"打开 {LoadMetadataScene} 场景"))
+        {
+            OpenTargetScene(LoadMetadataScene);
         }
 
         if (GUILayout.Button($"打开 {StartScene} 场景"))

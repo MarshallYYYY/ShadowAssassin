@@ -82,6 +82,20 @@ public class PersistentService : BaseService<PersistentService>
     #endregion
 
     #region PlayerData（存档文件 和 玩家数据）
+    private string GetSaveSlotPath(int index)
+    {
+        return $"{Application.persistentDataPath}/{PersistentConstants.SaveSlot}{index}.json";
+    }
+    /// <summary>
+    /// 保存游戏
+    /// </summary>
+    /// <param name="index"></param>
+    private void SaveGame(int index)
+    {
+        string path = GetSaveSlotPath(index);
+        string jsonStr = JsonConvert.SerializeObject(playerData);
+        File.WriteAllText(path, jsonStr);
+    }
     /// <summary>
     /// 目标索引对应的存档文件是否存在
     /// </summary>
@@ -89,7 +103,7 @@ public class PersistentService : BaseService<PersistentService>
     /// <returns></returns>
     public bool IsExistsSaveFile(int index)
     {
-        string path = $"{Application.persistentDataPath}/{PersistentConstants.SaveSlot}{index}.json";
+        string path = GetSaveSlotPath(index);
         return File.Exists(path);
     }
 
@@ -104,19 +118,36 @@ public class PersistentService : BaseService<PersistentService>
         {
             // 新游戏新建 playerData，并新建存档文件，同时将 playerData 的数据写入存档文件
             playerData = new();
-            SaveGameSaveFile(index);
+
+            // TODO：创建一个PlayerDataSO，用来存储人物的基本属性数据，
+            // 然后new的时候通过StaticDataService读取SO文件中的数据给PlayerData赋值
+
+            List<QuestSO> questSOs = StaticDataService.Instance.GetAllQuestSO();
+            for (int i = 0; i < questSOs.Count; i++)
+            {
+                QuestSO questSO = questSOs[i];
+                Quest quest = new()
+                {
+                    QuestCode = questSO.QuestCode,
+                    ProgressCount = 0,
+                    IsClaimed = false,
+                };
+                playerData.Quests.Add(quest);
+            }
+
+            SaveGame(index);
         }
         else
         {
             // 不是新游戏就读取存档文件中的数据赋值给 playerData
-            string path = $"{Application.persistentDataPath}/{PersistentConstants.SaveSlot}{index}.json";
+            string path = GetSaveSlotPath(index);
             string jsonStr = File.ReadAllText(path);
             playerData = JsonConvert.DeserializeObject<PlayerData>(jsonStr);
         }
     }
     #region 最后游玩时间 和 总计游玩时长
     /// <summary>
-    /// 选择存档进入游戏时，设置开始游戏时间并获取存档中的总计游戏时间
+    /// 选择存档进入游戏时，设置开始游戏时间
     /// </summary>
     /// <param name="index"></param>
     public void SetStartGameTimeOnEnterGame(int index)
@@ -131,7 +162,7 @@ public class PersistentService : BaseService<PersistentService>
     /// 设置目标存档的 最后游玩时间 和 总计游玩时长
     /// </summary>
     /// <param name="index"></param>
-    public void SetGameTime(int index)
+    public void SaveGameTime(int index)
     {
         DateTime nowTime = DateTime.Now;
         // Debug.LogError("开始游戏时间：" + startGameTime);
@@ -139,20 +170,23 @@ public class PersistentService : BaseService<PersistentService>
         // Debug.LogError($"本次游玩时长：{currentPlayTime.ToString(@"hh\:mm\:ss")}");
 
         playerData.LastPlayTime = nowTime;
+        /* TimeSpan.Seconds：获取整数秒（向下取整）
+           currentPlayTime.Seconds 只返回秒的零头部分（0~59），不包含分钟。
+           2026-7-2 01:21:34：一开始用的 Seconds，可把我给坑惨了，会少计算游玩时间。
+        */
         // TimeSpan.TotalSeconds：获取秒数（包含小数，精确到毫秒）
-        // TimeSpan.Seconds：获取整数秒（向下取整）
-        playerData.TotalPlayTime += currentPlayTime.Seconds;
+        playerData.TotalPlayTime += (float)currentPlayTime.TotalSeconds;
         // Debug.LogError($"总计游玩时长：{TimeSpan.FromSeconds(playerData.TotalPlayTime).ToString(@"hh\:mm\:ss")}");
-        SaveGameSaveFile(index);
+        SaveGame(index);
 
         // 重置计时基点
         startGameTime = nowTime;
     }
     #endregion
-    #region 加载游戏面板- SaveSlot
+    #region LoadGamePanel
     public void GetSaveSlotBasicInfo(int index, out int level, out float totalPlayTime, out DateTime lastPlayTime)
     {
-        string path = $"{Application.persistentDataPath}/{PersistentConstants.SaveSlot}{index}.json";
+        string path = GetSaveSlotPath(index);
         string jsonStr = File.ReadAllText(path);
         PlayerData data = JsonConvert.DeserializeObject<PlayerData>(jsonStr);
         level = data.Level;
@@ -162,19 +196,71 @@ public class PersistentService : BaseService<PersistentService>
     public void DeleteSaveSlotFile(int index)
     {
         playerData = null;
-        string path = $"{Application.persistentDataPath}/{PersistentConstants.SaveSlot}{index}.json";
+        string path = GetSaveSlotPath(index);
         File.Delete(path);
     }
     #endregion
+
+    /// <summary>
+    /// CharacterInformationPage 时用到，用于展示人物信息
+    /// </summary>
+    /// <returns></returns>
     public PlayerData GetPlayerData()
     {
         return playerData;
     }
-    private void SaveGameSaveFile(int index)
+    #endregion
+    #region Purchase & BlindBox
+    public int GetGoldCoin()
     {
-        string path = $"{Application.persistentDataPath}/{PersistentConstants.SaveSlot}{index}.json";
-        string jsonStr = JsonConvert.SerializeObject(playerData);
-        File.WriteAllText(path, jsonStr);
+        return playerData.GoldCoin;
+    }
+    public void SetGoldCoin(int goldCoin)
+    {
+        playerData.GoldCoin = goldCoin;
+    }
+    #endregion
+    #region Inventory
+    public void AddInventoryItem(InventoryItem item)
+    {
+        playerData.InventoryItems.Add(item);
+    }
+    public void DiscardInventoryItem(InventoryItem item)
+    {
+        playerData.InventoryItems.Remove(item);
+    }
+    /// <summary>
+    /// 通过uid获取一个背包物体
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <returns></returns>
+    public InventoryItem GetInventoryItem(string uid)
+    {
+        return playerData.InventoryItems.Find(item => item.Uid == uid);
+    }
+    /// <summary>
+    /// 获取排序后的所有背包物体
+    /// </summary>
+    /// <returns></returns>
+    public List<InventoryItem> GetSortedAllInventoryItem()
+    {
+        List<InventoryItem> items = new(playerData.InventoryItems);
+        items.Sort(new InventoryItemComparer());
+        return items;
+    }
+    #endregion
+    #region Quest
+    public List<Quest> GetAllQuest()
+    {
+        return playerData.Quests;
+    }
+    public void AddQuest(Quest quest)
+    {
+        playerData.Quests.Add(quest);
+    }
+    public Quest GetQuest(string questCode)
+    {
+        return playerData.Quests.Find(quest => quest.QuestCode == questCode);
     }
     #endregion
 }

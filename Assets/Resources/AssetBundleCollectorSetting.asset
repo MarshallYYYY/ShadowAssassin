@@ -103,3 +103,16 @@ MonoBehaviour:
         FilterRuleName: CollectAll
         AssetTags: 
         UserData: 
+    - GroupName: Art
+      GroupDesc: 
+      AssetTags: 
+      ActiveRuleName: EnableGroup
+      Collectors:
+      - CollectPath: Assets/Art
+        CollectorGUID: 11e7494ce13606b4a906f12aee9defc7
+        CollectorType: 0
+        AddressRuleName: AddressByFolderAndFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectAll
+        AssetTags: 
+        UserData: 

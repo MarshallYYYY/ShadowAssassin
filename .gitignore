@@ -9,6 +9,10 @@
 Bundles
 HybridCLRData
 yoo
+Assets/ImportAssets*
+Assets/Test*
+Assets/TextMesh Pro*
+Assets/StreamingAssets*
 
 .utmp/
 /[Ll]ibrary/

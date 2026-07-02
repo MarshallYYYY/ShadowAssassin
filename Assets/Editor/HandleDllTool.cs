@@ -58,11 +58,11 @@ public class HandleDllTool
             AssetDatabase.Refresh();
 
             // 5. 提示成功
-            EditorUtility.DisplayDialog(
-                "成功",
-                $"HotUpdate.dll 已编译并复制成功！\n目标位置：{TargetFolder}/{TargetFileName}",
-                "确定"
-            );
+            // EditorUtility.DisplayDialog(
+            //     "成功",
+            //     $"HotUpdate.dll 已编译并复制成功！\n目标位置：{TargetFolder}/{TargetFileName}",
+            //     "确定"
+            // );
 
             Debug.Log($"[{nameof(HandleDllTool)}] 更新成功！源：{SourceDllPath} -> 目标：{TargetFolder}/{TargetFileName}");
         }

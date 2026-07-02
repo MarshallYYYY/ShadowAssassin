@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aff13199220981b478b7eea3aa69e2d8, type: 3}
+  m_Name: DialogueDataBaseSO
+  m_EditorClassIdentifier: 
+  Dialogues:
+  - NpcName: "\u56FD\u738B"
+    NpcGameObjectName: King
+    Sentences:
+    - "\u52C7\u58EB\uFF0C\u4F60\u7EC8\u4E8E\u6765\u4E86\uFF01\u738B\u56FD\uFF0C\u6211\u4EEC\u7684\u738B\u56FD\u88AB\u9B54\u7269\u6BC1\u6389\u4E86...\u73B0\u5728\u6211\u4EEC\u53EA\u80FD\u5728\u8FD9\u4E2A\u5C0F\u6751\u5B50\u91CC\u9762\u4F11\u517B\u751F\u606F..."
+    - "\u4F60\u6765\u4E86\uFF0C\u6211\u4EEC\u5C31\u6709\u5E0C\u671B\u4E86\uFF0C\u5E0C\u671B\u4F60\u80FD\u6D88\u706D\u90A3\u4E9B\u9B54\u7269\uFF01\u4E0D\u8FC7\uFF0C\u4F60\u5148\u53BB\u627E\u65C1\u8FB9\u7684\u9A91\u58EB\u95EE\u95EE\u73B0\u5728\u7684\u60C5\u51B5\u5427"
+    - "\u671F\u76FC\u4F60\u4EEC\u51EF\u65CB\u5F52\u6765\uFF01"
+  - NpcName: "\u9A91\u58EB"
+    NpcGameObjectName: Knight
+    Sentences:
+    - "\u9B54\u7269\u73B0\u5728\u90FD\u805A\u96C6\u5728\u5730\u7262\u91CC\uFF0C\u51FA\u53D1\u4E4B\u524D\u5148\u63D0\u5347\u4E00\u4E0B\u5427"
+    - "\u53BB\u5546\u4EBA\u90A3\u91CC\u53EF\u4EE5\u4E70\u7269\u54C1\uFF0C\u53BB\u94C1\u5320\u90A3\u91CC\u53EF\u4EE5\u5F3A\u5316\u4F60\u7684\u88C5\u5907"
+    - "\u8981\u51FA\u53D1\u5417\uFF1F"
+  - NpcName: "\u5546\u4EBA"
+    NpcGameObjectName: Merchant
+    Sentences:
+    - "\u5FEB\u6765\u77A7\u4E00\u77A7\u770B\u4E00\u770B\u5566\uFF0C\u4E0D\u5149\u53EF\u4EE5\u4E70\u5546\u54C1\uFF0C\u73B0\u5728\u8FD8\u6709\u76F2\u76D2\u6D3B\u52A8\uFF01"
+  - NpcName: "\u94C1\u5320"
+    NpcGameObjectName: Blacksmith
+    Sentences:
+    - "\u5FEB\u6765\u5F3A\u5316\u4F60\u7684\u88C5\u5907\u5427"

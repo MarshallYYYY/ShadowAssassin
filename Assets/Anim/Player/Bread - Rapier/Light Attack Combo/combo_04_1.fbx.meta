@@ -5,7 +5,7 @@ ModelImporter:
   internalIDToNameTable:
   - first:
       74: 6568930131747861937
-    second: combo_04_1
+    second: LightAttack1
   externalObjects: {}
   materials:
     materialImportMode: 2
@@ -36,7 +36,7 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: combo_04_1
+      name: LightAttack1
       takeName: combo_04_1
       internalID: 0
       firstFrame: 0

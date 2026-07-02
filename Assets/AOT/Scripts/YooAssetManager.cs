@@ -63,7 +63,7 @@ public class YooAssetManager : MonoBehaviour
 
     #region 监听事件
     public event Action<string> Failed;
-    public event Action<string> Finished;
+    public event Action Finished;
     #endregion
     void Start()
     {
@@ -81,11 +81,11 @@ public class YooAssetManager : MonoBehaviour
         yield return UpdatePackageManifest();
         yield return DownloadHotUpdateAssets();
 
-        yield return CacheDlls();
-        LoadMetadataForAOTAssemblies();
-        LoadHotUpdateDll();
+        yield return LoadHotUpdateDll();
 
-        Finished?.Invoke(packageVersion);
+        PreserveAOTTypes();
+
+        Finished?.Invoke();
     }
     private void OccurredError(string errorMessage)
     {
@@ -137,7 +137,7 @@ public class YooAssetManager : MonoBehaviour
     {
         Debug.Log("================== 2.根据不同平台初始化资源包 =================");
         InitializationOperation initOperation;
-        Debug.LogWarning($"当前PlayMode = {playMode}");
+        // Debug.LogWarning($"当前PlayMode = {playMode}");
         switch (playMode)
         {
             case EPlayMode.EditorSimulateMode:
@@ -428,97 +428,73 @@ public class YooAssetManager : MonoBehaviour
     #endregion
     #endregion
 
-    #region 6.缓存dll，判断是否已经加载 热更新dll 和 补充AOTdll
-    /// <summary>
-    /// 补充元数据dll的列表，
-    /// 通过RuntimeApi.LoadMetadataForAOTAssembly()函数来补充AOT泛型的原始元数据
-    /// </summary>
-    private List<string> AOTMetaAssemblyFiles { get; } =
-        new()
-        {
-            "mscorlib.dll", "System.dll", "System.Core.dll",
-            "DOTween.dll", "Newtonsoft.Json.dll", "UnityEngine.CoreModule.dll",
-            "YooAsset.dll",
-            "Unity.InputSystem.dll",
-        };
-
-    private readonly Dictionary<string, TextAsset> assetDict = new();
-    private IEnumerator CacheDlls()
+    #region 6. HybridCLR相关的代码：加载热更新dll（HotUpdate.dll）
+    private IEnumerator LoadHotUpdateDll()
     {
-        Debug.Log("================== 6.加载 热更新dll 和 补充AOTdll，然后进行缓存 =================");
-        var assets = new List<string> { YooAssetConstants.HotUpdateDllName }.Concat(AOTMetaAssemblyFiles);
-        ResourcePackage package = YooAssets.GetPackage(YooAssetConstants.PackageName);
-        foreach (string asset in assets)
+        Debug.Log("================== 6.加载热更新dll =================");
+
+        string hotUpdateDll = YooAssetConstants.HotUpdateDllName;
+        AssetHandle handle = package.LoadAssetAsync<TextAsset>(hotUpdateDll);
+        yield return handle;
+        TextAsset textAsset = handle.AssetObject as TextAsset;
+        if (textAsset == null)
         {
-            AssetHandle handle = package.LoadAssetAsync<TextAsset>(asset);
-            yield return handle;
-            TextAsset textAsset = handle.AssetObject as TextAsset;
-            assetDict[asset] = textAsset;
-            Debug.Log($"dll:{asset} 加载{(textAsset != null ? "成功" : "失败")}！");
+            OccurredError($"{hotUpdateDll} 加载失败！");
+            yield break;
         }
-    }
-    #endregion
+        Debug.Log($"{hotUpdateDll} 加载成功！");
 
-    #region HybridCLR相关的代码，补充AOTdll元数据和加载热更新dll
-    #region 7.补充元数据
-    /// <summary>
-    /// 为aot assembly加载原始metadata， 这个代码放aot或者热更新都行。
-    /// 一旦加载后，如果AOT泛型函数对应native实现不存在，则自动替换为解释模式执行
-    /// </summary>
-    private void LoadMetadataForAOTAssemblies()
-    {
-        Debug.Log("================== 7.补充元数据 =================");
-        /// 注意，补充元数据是给AOT dll补充元数据，而不是给热更新dll补充元数据。
-        /// 热更新dll不缺元数据，不需要补充，如果调用LoadMetadataForAOTAssembly会返回错误
-        HomologousImageMode mode = HomologousImageMode.SuperSet;
-        foreach (string aotDllName in AOTMetaAssemblyFiles)
-        {
-            byte[] dllBytes = GetDllBytes(aotDllName);
-            // 加载assembly对应的dll，会自动为它hook。一旦aot泛型函数的native函数不存在，用解释器版本代码
-            LoadImageErrorCode errorCode = RuntimeApi.LoadMetadataForAOTAssembly(dllBytes, mode);
-            Debug.Log(
-                $"LoadMetadataForAOTAssembly: {aotDllName}, " +
-                $"result: {errorCode}.");
-        }
-    }
-
-    private byte[] GetDllBytes(string dllName)
-    {
-        if (assetDict.ContainsKey(dllName))
-        {
-            return assetDict[dllName].bytes;
-        }
-
-        return Array.Empty<byte>();
-    }
-
-    #endregion
-    #region 8.加载热更新dll
-    private void LoadHotUpdateDll()
-    {
-        Debug.Log("================== 8.加载热更新dll =================");
-        byte[] dllBytes = GetDllBytes(YooAssetConstants.HotUpdateDllName);
+        byte[] dllBytes = textAsset.bytes;
         if (dllBytes != null && dllBytes.Length > 0)
         {
-            // Editor环境下，HotUpdate.dll.bytes已经被自动加载，不需要加载，重复加载反而会出问题。
 #if !UNITY_EDITOR
             Assembly hotUpdateAssembly = Assembly.Load(dllBytes);
 #else
+            // Editor环境下，HotUpdate.dll.bytes已经被自动加载，不需要加载，重复加载反而会出问题。
             // Editor下无需加载，直接查找获得HotUpdate程序集
             Assembly hotUpdateAssembly = AppDomain.CurrentDomain.GetAssemblies().First(assembly => assembly.GetName().Name == "HotUpdate");
 #endif
-            Debug.Log($"{YooAssetConstants.HotUpdateDllName} 加载成功，程序集名称为 {hotUpdateAssembly.FullName}");
+            // Debug.Log($"{YooAssetConstants.HotUpdateDllName} 加载成功，程序集名称为 {hotUpdateAssembly.FullName}");
+            Debug.Log($"{YooAssetConstants.HotUpdateDllName} 加载成功！");
         }
         else
         {
-            Debug.LogError($"{YooAssetConstants.HotUpdateDllName} 加载失败！");
+            OccurredError($"{YooAssetConstants.HotUpdateDllName} 加载失败！");
+            yield break;
         }
     }
     #endregion
+    /// <summary>
+    /// 保护AOT类型，防止代码裁剪。
+    /// Unity使用了代码裁剪技术来帮助减少il2cpp backend的包体大小。
+    /// </summary>
+    private void PreserveAOTTypes()
+    {
+        // 防止 IL2CPP 裁剪
+        _ = HomologousImageMode.SuperSet;
 
-    #endregion
+        // UnityEngine.PhysicsModule
+        // 防止 IL2CPP 整体裁剪程序集
+        _ = typeof(BoxCollider);
 
+        /*
+        // 创建一个假 GameObject 来调用 set_enabled
+        // IL2CPP 扫描到此方法的 IL 中有 Collider.set_enabled 的调用 → 保留
+        var go = new GameObject();
+        var bc = go.AddComponent<BoxCollider>();
+        bc.enabled = false;          // ← 保留 Collider.set_enabled
 
+        var cc = go.AddComponent<CapsuleCollider>();
+        cc.enabled = false;
+
+        var ch = go.AddComponent<CharacterController>();
+        ch.enabled = false;
+
+        var rb = go.AddComponent<Rigidbody>();
+        rb.isKinematic = true;       // ← 保留 Rigidbody.set_isKinematic
+        DestroyImmediate(go);
+        */
+    }
 }
 public struct DownloadDataInfo
 {

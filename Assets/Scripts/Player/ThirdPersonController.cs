@@ -9,6 +9,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(CapsuleCollider))]
+[RequireComponent(typeof(AfterImageEffect))]
 public class ThirdPersonController : MonoBehaviour
 {
     #region InputActionAsset and Component
@@ -75,13 +76,13 @@ public class ThirdPersonController : MonoBehaviour
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float lockedTargetRotateSpeed = 5f;
     #endregion
-    private AfterImage3D2 afterImage;
+    private AfterImageEffect afterImage;
     void Awake()
     {
-        afterImage = GetComponent<AfterImage3D2>(); // 挂在 Player 上，Awake 时拿到
+        afterImage = GetComponent<AfterImageEffect>(); // 挂在 Player 上，Awake 时拿到
         // 初始化输入系统，并监听角色移动输入
-        inputActions = new();
-        inputActions.Player.Enable();
+        inputActions = GameManager.Instance.InputActions;
+        // inputActions.Player.Enable();
         inputActions.Player.Move.performed += OnMove;
         inputActions.Player.Move.canceled += OnMove;
         inputActions.Player.LockTarget.performed += ctx => isLock = !isLock;
@@ -99,6 +100,26 @@ public class ThirdPersonController : MonoBehaviour
 
         comboSlider.gameObject.SetActive(false);
         separatorTemplate.gameObject.SetActive(false);
+    }
+    // void OnEnable()
+    // {
+    //     inputActions.Enable();
+    // }
+    // void OnDisable()
+    // {
+    //     inputActions.Disable();
+    // }
+    void OnDestroy()
+    {
+        // 只取消回调，不 Dispose —— inputActions 是 GameManager 的共享实例
+        if (inputActions != null)
+        {
+            inputActions.Player.Move.performed -= OnMove;
+            inputActions.Player.Move.canceled -= OnMove;
+            inputActions.Player.Avoid.performed -= OnAvoid;
+            inputActions.Player.Roll.performed -= OnRoll;
+            // LockTarget 和 Attack 是 lambda，无法取消，影响不大
+        }
     }
     void Update()
     {
@@ -263,13 +284,14 @@ public class ThirdPersonController : MonoBehaviour
                     PlayAttack(0, attckType);
                 }
             }
+            // 连击过程中：
             else if (attckType != AttackType.None
                      && comboIndex > 0
                      && comboIndex < lightAttackClips.Length)
             {
                 // 轻攻击连击（2-5） 和 重攻击 - 转身突刺：仅在前四段轻攻击连击的收尾阶段可触发
                 int currentIndex = comboIndex - 1;
-                bool isCanAttack = currentAnimTime >= attackAnimDB.AttackAnimList[currentIndex].EnterFollowThroughTime;
+                bool isCanAttack = currentAnimTime >= attackAnimDB.LightAttackAnims[currentIndex].EnterFollowThroughTime;
                 if (isCanAttack)
                 {
                     // 轻攻击走连击索引；重攻击打第 3 击（派生技：转身突刺）
@@ -292,6 +314,8 @@ public class ThirdPersonController : MonoBehaviour
     }
     private void PlayAttack(int index, AttackType attckType)
     {
+        // TODO：释放攻击动作过程中，还要限制翻滚和闪避的使用
+
         SetAnimatorBeforeAction();
         AnimationClip clip;
 
@@ -305,10 +329,10 @@ public class ThirdPersonController : MonoBehaviour
             comboSlider.gameObject.SetActive(true);
 
             ClearSeparators();
-            AttackAnimSO attackAnimSO = attackAnimDB.AttackAnimList[index];
-            currentActionTotalTime = attackAnimSO.Length;
-            CreateSeparator(currentActionTotalTime, attackAnimSO.EnterHitTime);
-            CreateSeparator(currentActionTotalTime, attackAnimSO.EnterFollowThroughTime);
+            AttackAnim attackAnim = attackAnimDB.LightAttackAnims[index];
+            currentActionTotalTime = attackAnim.Length;
+            CreateSeparator(currentActionTotalTime, attackAnim.EnterHitTime);
+            CreateSeparator(currentActionTotalTime, attackAnim.EnterFollowThroughTime);
 
             currentComboText.text = (index + 1).ToString();
         }

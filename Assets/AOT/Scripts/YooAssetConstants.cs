@@ -11,5 +11,6 @@ public static class YooAssetConstants
 
     public const string HotUpdateDllName = "HotUpdate.dll";
 
-    public const string StartSceneLocation = "Assets/Scenes/StartScene.unity";
+    // public const string StartSceneLocation = "Assets/Scenes/StartScene.unity";
+    public const string LoadMetadataLocation = "Assets/Scenes/LoadMetadataScene.unity";
 }

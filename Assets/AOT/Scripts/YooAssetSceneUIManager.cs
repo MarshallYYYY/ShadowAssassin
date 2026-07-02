@@ -21,14 +21,13 @@ public class YooAssetSceneUIManager : MonoBehaviour
     // }
     private YooAssetManager yooAssetManager;
     [SerializeField] private Text titleText;
-
+    private Tween titleTextTween;
     private void Awake()
     {
         yooAssetManager = GameObject.Find(nameof(YooAssetManager)).GetComponent<YooAssetManager>();
-        titleText.DOFade(0.3f, 2f).SetLoops(-1, LoopType.Yoyo);
+        titleTextTween = titleText.DOFade(0.3f, 2f).SetLoops(-1, LoopType.Yoyo);
         InitDownloadWindow();
         InitFailedWindow();
-        InitStartGameWindow();
     }
     private void OnEnable()
     {
@@ -37,17 +36,6 @@ public class YooAssetSceneUIManager : MonoBehaviour
         yooAssetManager.Failed += OnFailed;
         yooAssetManager.Finished += OnFinished;
     }
-    private void Update()
-    {
-        if (startGameWindow.activeSelf)
-        {
-            if (Input.anyKeyDown)
-            {
-                StartGame();
-            }
-        }
-    }
-
     private void OnDisable()
     {
         yooAssetManager.MakeDownloadDecision -= OnMakeDownloadDecision;
@@ -58,11 +46,12 @@ public class YooAssetSceneUIManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        // 如果不加此逻辑，从当前场景跳转到其他场景时，DOTween会警告⚠️。
-        if (titleText != null)
-        {
-            DOTween.Kill(titleText);
-        }
+        // if (titleText != null)
+        // {
+        //     DOTween.Kill(titleText);
+        // }
+
+        titleTextTween?.Kill();
     }
 
     #region YooAssetManage中的（监听）事件
@@ -98,11 +87,19 @@ public class YooAssetSceneUIManager : MonoBehaviour
         failedWindow.SetActive(true);
     }
 
-    private void OnFinished(string packageVersion)
+    private void OnFinished()
     {
         downloadWindow.SetActive(false);
-        versionText.text = packageVersion;
-        startGameWindow.SetActive(true);
+        StartCoroutine(EnterLoadMetadataScene());
+    }
+    private IEnumerator EnterLoadMetadataScene()
+    {
+        Debug.Log("================== Enter LoadMetadataScene =================");
+        ResourcePackage package = YooAssets.GetPackage(YooAssetConstants.PackageName);
+
+        SceneHandle handle = package.LoadSceneAsync(YooAssetConstants.LoadMetadataLocation);
+        yield return handle.Task;
+        Debug.Log("场景名称：" + handle.SceneName);
     }
     #endregion
     #region Download Window
@@ -169,34 +166,5 @@ public class YooAssetSceneUIManager : MonoBehaviour
         Application.Quit();
 #endif
     }
-    #endregion
-
-    #region StartGame Window
-    [Header("StartGame")]
-    [SerializeField] private GameObject startGameWindow;
-    [SerializeField] private Text tipText;
-    [SerializeField] private Text versionText;
-    private void InitStartGameWindow()
-    {
-        startGameWindow.SetActive(false);
-        tipText.gameObject.SetActive(true);
-        versionText.gameObject.SetActive(true);
-    }
-    #region 开始游戏
-    private void StartGame()
-    {
-        Debug.Log("================== 开始游戏 =================");
-        Debug.Log("运行热更新的代码");
-        StartCoroutine(LoadScene());
-    }
-    private IEnumerator LoadScene()
-    {
-        var package = YooAssets.GetPackage(YooAssetConstants.PackageName);
-        SceneHandle handle = package.LoadSceneAsync(YooAssetConstants.StartSceneLocation);
-        yield return handle.Task;
-        Debug.Log("场景名称：" + handle.SceneName);
-    }
-
-    #endregion
     #endregion
 }

@@ -1,0 +1,136 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class DialogueWindow : MonoBehaviour
+{
+    #region Setence UI
+    [Header("Setence")]
+    [SerializeField] private Text npcNameText;
+    [SerializeField] private Text setenceText;
+    [SerializeField] private Button nextButton;
+    #endregion
+    #region KnightPanel
+    [Header("KnightPanel")]
+    [SerializeField] private GameObject knightPanel;
+    [SerializeField] private Button departButton;
+    [SerializeField] private Button cancelKnightButton;
+    #endregion
+
+    #region MerchantPanel
+    [Header("MerchantPanel")]
+    [SerializeField] private GameObject merchantPanel;
+    [SerializeField] private Button purchaseButton;
+    [SerializeField] private Button blindBoxButton;
+    [SerializeField] private Button cancelMerchantButton;
+    [SerializeField] private GameObject purchaseWindow;
+    [SerializeField] private GameObject blindBoxWindow;
+    #endregion
+    #region BlacksmithPanel
+    [Header("BlacksmithPanel")]
+    [SerializeField] private GameObject blacksmithPanel;
+    [SerializeField] private Button enhanceButton;
+    [SerializeField] private Button cancelBlacksmithButton;
+    [SerializeField] private GameObject equipmentEnhanceWindow;
+    #endregion
+    #region Setences Data
+    private int setenceIndex = 0;
+    private List<string> setences;
+    private DialogueSO dialogueSO;
+    #endregion
+    #region 外部可访问
+    public event Action OnDialogueEnd;
+    public void Init()
+    {
+        purchaseWindow.SetActive(false);
+        blindBoxWindow.SetActive(false);
+
+        equipmentEnhanceWindow.SetActive(false);
+
+        knightPanel.SetActive(false);
+        merchantPanel.SetActive(false);
+        blacksmithPanel.SetActive(false);
+    }
+    public void SetDialogueContent(DialogueSO dialogueSO)
+    {
+        this.dialogueSO = dialogueSO;
+        GameManager.Instance.SwitchToUIMode();
+        setenceIndex = 0;
+        setences = new(dialogueSO.Sentences);
+
+        npcNameText.text = dialogueSO.NpcName;
+        setenceText.text = setences[setenceIndex];
+    }
+    #endregion
+    void Awake()
+    {
+        nextButton.onClick.AddListener(OnNextButtonClicked);
+
+        departButton.onClick.AddListener(() => { });
+
+        purchaseButton.onClick.AddListener(OnPurchaseButtonClicked);
+        blindBoxButton.onClick.AddListener(() => blindBoxWindow.SetActive(true));
+
+        enhanceButton.onClick.AddListener(() => equipmentEnhanceWindow.SetActive(true));
+
+        cancelKnightButton.onClick.AddListener(() =>
+        {
+            knightPanel.SetActive(false);
+            EndDialogue();
+        });
+        cancelMerchantButton.onClick.AddListener(() =>
+        {
+            merchantPanel.SetActive(false);
+            EndDialogue();
+        });
+        cancelBlacksmithButton.onClick.AddListener(() =>
+        {
+            blacksmithPanel.SetActive(false);
+            EndDialogue();
+        });
+    }
+
+    #region Button Events  
+    private void OnNextButtonClicked()
+    {
+        setenceIndex++;
+        if (setenceIndex != setences.Count)
+        {
+            setenceText.text = setences[setenceIndex];
+        }
+        else
+        {
+            switch (dialogueSO.NpcGameObjectName)
+            {
+                case NpcGameObjectNameConstants.Knight:
+                    knightPanel.SetActive(true);
+                    break;
+                case NpcGameObjectNameConstants.Merchant:
+                    merchantPanel.SetActive(true);
+                    break;
+                case NpcGameObjectNameConstants.Blacksmith:
+                    blacksmithPanel.SetActive(true);
+                    break;
+                default:
+                    EndDialogue();
+                    break;
+            }
+        }
+    }
+    private void EndDialogue()
+    {
+        OnDialogueEnd?.Invoke();
+        GameManager.Instance.SwitchToPlayMode();
+        gameObject.SetActive(false);
+    }
+    private void OnPurchaseButtonClicked()
+    {
+        GameManager.Instance.SwitchToUIMode();
+        purchaseWindow.SetActive(true);
+    }
+    #endregion
+
+
+}

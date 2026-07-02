@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -19,7 +20,7 @@ public class ThirdPersonCamera : MonoBehaviour
     /// 视角向下的最大角度
     /// </summary>
     [SerializeField] private float bottomClamp = -30.0f;
-    private float lookScale = 2f;
+    [SerializeField] private float lookScale = 0.5f;
     #endregion
 
     #region Data
@@ -36,19 +37,33 @@ public class ThirdPersonCamera : MonoBehaviour
     #endregion
     void Awake()
     {
-        inputActions = new();
-        inputActions.Player.Enable();
+        inputActions = GameManager.Instance.InputActions;
+        // inputActions.Player.Enable();
         inputActions.Player.Look.performed += OnLook;
         inputActions.Player.Look.canceled += OnLook;
 
         // 保存摄像机目标的Y轴角度
         cinemachineTargetYaw = cameraTarget.transform.rotation.eulerAngles.y;
+
+        var vcam = FindObjectOfType<CinemachineVirtualCamera>();
+        if (vcam != null && cameraTarget != null)
+        {
+            vcam.Follow = cameraTarget.transform;
+        }
     }
     #region Input Actions
     private ThirdPersonControl inputActions;
     private void OnLook(InputAction.CallbackContext context)
     {
         look = context.ReadValue<Vector2>() * lookScale;
+    }
+    void OnEnable()
+    {
+        inputActions.Enable();
+    }
+    void OnDisable()
+    {
+        inputActions.Disable();
     }
     #endregion
     void LateUpdate()
