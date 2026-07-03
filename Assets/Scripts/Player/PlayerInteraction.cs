@@ -16,19 +16,15 @@ public class PlayerInteraction : MonoBehaviour
     private int talkingNpcIndex = -1;
     void Start()
     {
-        // 2026-7-2 01:35:08：打包后到exe运行没有跟NPC的Trigger触发，怀疑是npcs没有成功赋值
-        // if (npcs.Length != 4)
-        // {
-        //     for (int i = 0; i < 4; i++)
-        //     {
-        //         Transform npcsTransoform = GameObject.Find("NPCs").transform;
-        //         npcs[i] = npcsTransoform.GetChild(i).gameObject;
-        //     }
-        // }
+        // 从持久化的任务进度同步 currentNpcIndex，防止加载存档后归零
+        int talkQuestProgress = PersistentService.Instance.GetQuestProgress(QuestCodeConstants.Talk);
+        currentNpcIndex = talkQuestProgress;
+
         for (int i = 0; i < npcs.Length; i++)
         {
             // 只启用第一个 NPC 的 BoxCollider，其他的禁用
-            npcs[i].GetComponent<BoxCollider>().enabled = i == 0;
+            // npcs[i].GetComponent<BoxCollider>().enabled = i == 0;
+            npcs[i].GetComponent<BoxCollider>().enabled = i < talkQuestProgress + 1;
         }
 
         dialogueWindow.OnDialogueEnd += ActiveNextNpcCollider;
@@ -63,9 +59,14 @@ public class PlayerInteraction : MonoBehaviour
     private void ActiveNextNpcCollider()
     {
         // 仅当本轮对话的 NPC 正好是"应该对话的那个"时，才推进
+        // 例子：King 0：talkingNpcIndex = 0，currentNpcIndex = 0
         if (talkingNpcIndex == currentNpcIndex)
         {
+            PersistentService.Instance.AddQuestProgress(QuestCodeConstants.Talk);
+            // 例子：King 0：talkingNpcIndex = 0，currentNpcIndex = 0
             currentNpcIndex++;
+            // 例子：King 0：talkingNpcIndex = 0，currentNpcIndex = 1
+
             // 启用下一个
             if (currentNpcIndex < npcs.Length)
                 npcs[currentNpcIndex].GetComponent<BoxCollider>().enabled = true;

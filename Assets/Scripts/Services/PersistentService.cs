@@ -254,13 +254,31 @@ public class PersistentService : BaseService<PersistentService>
     {
         return playerData.Quests;
     }
-    public void AddQuest(Quest quest)
-    {
-        playerData.Quests.Add(quest);
-    }
     public Quest GetQuest(string questCode)
     {
         return playerData.Quests.Find(quest => quest.QuestCode == questCode);
+    }
+    public int GetQuestProgress(string questCode)
+    {
+        return playerData.Quests.Find(quest => quest.QuestCode == questCode).ProgressCount;
+    }
+    /// <summary>
+    /// 根据任务代码让目标任务的进度+1
+    /// </summary>
+    /// <param name="questCode"></param>
+    public void AddQuestProgress(string questCode)
+    {
+        Quest quest = playerData.Quests.Find(quest => quest.QuestCode == questCode);
+        if (quest == null)
+            return;
+        QuestSO questSO = StaticDataService.Instance.GetQuestSO(questCode);
+        if (questSO == null)
+            return;
+
+        // 已达上限，不再增加
+        if (quest.ProgressCount >= questSO.RequiredCount)
+            return;
+        quest.ProgressCount++;
     }
     #endregion
 }

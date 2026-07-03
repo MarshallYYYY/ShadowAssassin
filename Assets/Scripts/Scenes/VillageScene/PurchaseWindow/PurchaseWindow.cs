@@ -37,13 +37,14 @@ public class PurchaseWindow : MonoBehaviour
         {
             Destroy(merchantGoods.GetChild(i).gameObject);
         }
+        List<InventoryItemSO> inventoryItemSOs = StaticDataService.Instance.GetAllInventoryItemSO();
         // 倒序是为了让价格更便宜的物品在前面：森林藤蔓、黑色矿石、银色矿石
-        for (int i = StaticDataService.Instance.GetAllInventoryItemSO().Count - 1; i >= 0; i--)
+        for (int i = inventoryItemSOs.Count - 1; i >= 0; i--)
         {
-            InventoryItemSO itemSO = StaticDataService.Instance.GetAllInventoryItemSO()[i];
+            InventoryItemSO itemSO = inventoryItemSOs[i];
             if (itemSO.Price != -1f)
             {
-                Debug.Log(itemSO.Name + "   " + itemSO.Price);
+                // Debug.Log(itemSO.Name + "   " + itemSO.Price);
                 GoodsUI goodsUI = Instantiate(goodsPrefab, merchantGoods).GetComponent<GoodsUI>();
                 goodsUI.Init(itemSO);
                 goodsUIs.Add(goodsUI);

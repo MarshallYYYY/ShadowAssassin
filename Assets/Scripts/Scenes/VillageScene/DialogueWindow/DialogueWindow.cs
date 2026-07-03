@@ -69,22 +69,21 @@ public class DialogueWindow : MonoBehaviour
         nextButton.onClick.AddListener(OnNextButtonClicked);
 
         departButton.onClick.AddListener(() => { });
-
-        purchaseButton.onClick.AddListener(OnPurchaseButtonClicked);
-        blindBoxButton.onClick.AddListener(() => blindBoxWindow.SetActive(true));
-
-        enhanceButton.onClick.AddListener(() => equipmentEnhanceWindow.SetActive(true));
-
         cancelKnightButton.onClick.AddListener(() =>
         {
             knightPanel.SetActive(false);
             EndDialogue();
         });
+
+        purchaseButton.onClick.AddListener(() => purchaseWindow.SetActive(true));
+        blindBoxButton.onClick.AddListener(() => blindBoxWindow.SetActive(true));
         cancelMerchantButton.onClick.AddListener(() =>
         {
             merchantPanel.SetActive(false);
             EndDialogue();
         });
+
+        enhanceButton.onClick.AddListener(() => equipmentEnhanceWindow.SetActive(true));
         cancelBlacksmithButton.onClick.AddListener(() =>
         {
             blacksmithPanel.SetActive(false);
@@ -96,14 +95,19 @@ public class DialogueWindow : MonoBehaviour
     private void OnNextButtonClicked()
     {
         setenceIndex++;
+        // 如果句子索引不等于总数量
         if (setenceIndex != setences.Count)
         {
             setenceText.text = setences[setenceIndex];
         }
+        // 最后一个句子已经说完了
         else
         {
             switch (dialogueSO.NpcGameObjectName)
             {
+                case NpcGameObjectNameConstants.King:
+                    EndDialogue();
+                    break;
                 case NpcGameObjectNameConstants.Knight:
                     knightPanel.SetActive(true);
                     break;
@@ -113,9 +117,6 @@ public class DialogueWindow : MonoBehaviour
                 case NpcGameObjectNameConstants.Blacksmith:
                     blacksmithPanel.SetActive(true);
                     break;
-                default:
-                    EndDialogue();
-                    break;
             }
         }
     }
@@ -124,11 +125,6 @@ public class DialogueWindow : MonoBehaviour
         OnDialogueEnd?.Invoke();
         GameManager.Instance.SwitchToPlayMode();
         gameObject.SetActive(false);
-    }
-    private void OnPurchaseButtonClicked()
-    {
-        GameManager.Instance.SwitchToUIMode();
-        purchaseWindow.SetActive(true);
     }
     #endregion
 

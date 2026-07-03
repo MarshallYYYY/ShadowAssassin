@@ -31,32 +31,9 @@ public class QuestItemUI : MonoBehaviour
         goldCoinText.text = questSO.GoldCoin.ToString();
         expText.text = questSO.Exp.ToString();
 
-        InitClaimButton();
+        claimButton.onClick.AddListener(OnClaimButtonClicked);
 
         RefreshProgress();
-    }
-    private void InitClaimButton()
-    {
-        if (progressSlider.value == progressSlider.maxValue)
-        {
-            if (quest.IsClaimed is false)
-            {
-                claimButton.interactable = true;
-                claimText.text = "领取";
-            }
-            else
-            {
-                claimButton.interactable = false;
-                claimText.text = "已领取";
-            }
-        }
-        else
-        {
-            claimButton.interactable = false;
-            claimText.text = "领取";
-        }
-
-        claimButton.onClick.AddListener(OnClaimButtonClicked);
     }
 
     private void OnClaimButtonClicked()
@@ -79,6 +56,25 @@ public class QuestItemUI : MonoBehaviour
         {
             progressText.text = $"{quest.ProgressCount} / {questSO.RequiredCount}";
             progressSlider.value = quest.ProgressCount;
+        }
+
+        if (progressSlider.value == progressSlider.maxValue)
+        {
+            if (quest.IsClaimed is false)
+            {
+                claimButton.interactable = true;
+                claimText.text = "领取";
+            }
+            else
+            {
+                claimButton.interactable = false;
+                claimText.text = "已领取";
+            }
+        }
+        else
+        {
+            claimButton.interactable = false;
+            claimText.text = "领取";
         }
     }
 }
