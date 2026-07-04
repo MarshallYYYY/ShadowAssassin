@@ -82,20 +82,6 @@ public class PersistentService : BaseService<PersistentService>
     #endregion
 
     #region PlayerData（存档文件 和 玩家数据）
-    private string GetSaveSlotPath(int index)
-    {
-        return $"{Application.persistentDataPath}/{PersistentConstants.SaveSlot}{index}.json";
-    }
-    /// <summary>
-    /// 保存游戏
-    /// </summary>
-    /// <param name="index"></param>
-    private void SaveGame(int index)
-    {
-        string path = GetSaveSlotPath(index);
-        string jsonStr = JsonConvert.SerializeObject(playerData);
-        File.WriteAllText(path, jsonStr);
-    }
     /// <summary>
     /// 目标索引对应的存档文件是否存在
     /// </summary>
@@ -106,7 +92,6 @@ public class PersistentService : BaseService<PersistentService>
         string path = GetSaveSlotPath(index);
         return File.Exists(path);
     }
-
     /// <summary>
     /// 通过某个具体的存档进入游戏时调用
     /// </summary>
@@ -135,7 +120,7 @@ public class PersistentService : BaseService<PersistentService>
                 playerData.Quests.Add(quest);
             }
 
-            SaveGame(index);
+            SaveGameTime(index);
         }
         else
         {
@@ -145,6 +130,38 @@ public class PersistentService : BaseService<PersistentService>
             playerData = JsonConvert.DeserializeObject<PlayerData>(jsonStr);
         }
     }
+    private string GetSaveSlotPath(int index)
+    {
+        return $"{Application.persistentDataPath}/{PersistentConstants.SaveSlot}{index}.json";
+    }
+    /// <summary>
+    /// 保存游戏
+    /// </summary>
+    /// <param name="index"></param>
+    private void SaveGame(int index)
+    {
+        string path = GetSaveSlotPath(index);
+        string jsonStr = JsonConvert.SerializeObject(playerData);
+        File.WriteAllText(path, jsonStr);
+    }
+    #endregion
+    #region LoadGamePanel
+    public void GetSaveSlotBasicInfo(int index, out int level, out float totalPlayTime, out DateTime lastPlayTime)
+    {
+        string path = GetSaveSlotPath(index);
+        string jsonStr = File.ReadAllText(path);
+        PlayerData data = JsonConvert.DeserializeObject<PlayerData>(jsonStr);
+        level = data.Level;
+        totalPlayTime = data.TotalPlayTime;
+        lastPlayTime = data.LastPlayTime;
+    }
+    public void DeleteSaveSlotFile(int index)
+    {
+        playerData = null;
+        string path = GetSaveSlotPath(index);
+        File.Delete(path);
+    }
+    #endregion
     #region 最后游玩时间 和 总计游玩时长
     /// <summary>
     /// 选择存档进入游戏时，设置开始游戏时间
@@ -183,24 +200,7 @@ public class PersistentService : BaseService<PersistentService>
         startGameTime = nowTime;
     }
     #endregion
-    #region LoadGamePanel
-    public void GetSaveSlotBasicInfo(int index, out int level, out float totalPlayTime, out DateTime lastPlayTime)
-    {
-        string path = GetSaveSlotPath(index);
-        string jsonStr = File.ReadAllText(path);
-        PlayerData data = JsonConvert.DeserializeObject<PlayerData>(jsonStr);
-        level = data.Level;
-        totalPlayTime = data.TotalPlayTime;
-        lastPlayTime = data.LastPlayTime;
-    }
-    public void DeleteSaveSlotFile(int index)
-    {
-        playerData = null;
-        string path = GetSaveSlotPath(index);
-        File.Delete(path);
-    }
-    #endregion
-
+    #region CharacterInformationPage
     /// <summary>
     /// CharacterInformationPage 时用到，用于展示人物信息
     /// </summary>

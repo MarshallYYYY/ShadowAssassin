@@ -93,6 +93,7 @@ public class BlindBoxWindow : MonoBehaviour
 
         // 扣钱
         PersistentService.Instance.SetGoldCoin(goldCoin - totalPrice);
+        PersistentService.Instance.AddQuestProgress(QuestCodeConstants.BlindBox);
         ShowTipPanel($"成功开启{count}个盲盒！");
 
         open1BlindBoxButton.interactable = true;

@@ -18,28 +18,28 @@ MonoBehaviour:
     Id: 0
     RequiredCount: 4
     Exp: 100
-    GoldCoin: 200
-  - QuestName: "\u8D2D\u4E705\u6B21\u5546\u54C1"
+    GoldCoin: 100
+  - QuestName: "\u8D2D\u4E70\u5546\u54C15\u6B21"
     QuestCode: Purchase
     Id: 1
     RequiredCount: 5
-    Exp: 100
-    GoldCoin: 200
-  - QuestName: "\u5F002\u6B21\u76F2\u76D2"
+    Exp: 200
+    GoldCoin: 500
+  - QuestName: "\u5F00\u542F\u76F2\u76D22\u6B21"
     QuestCode: BlindBox
     Id: 2
     RequiredCount: 2
-    Exp: 100
-    GoldCoin: 200
+    Exp: 200
+    GoldCoin: 500
   - QuestName: "\u5F3A\u5316\u88C5\u59075\u6B21"
     QuestCode: Enhance
     Id: 3
     RequiredCount: 5
-    Exp: 100
-    GoldCoin: 200
+    Exp: 500
+    GoldCoin: 1000
   - QuestName: "\u53BB\u5730\u7262\u6253\u8D25\u6240\u6709\u9B54\u7269"
     QuestCode: Dungeon
     Id: 4
     RequiredCount: 1
-    Exp: 100
-    GoldCoin: 200
+    Exp: 1000
+    GoldCoin: 2000

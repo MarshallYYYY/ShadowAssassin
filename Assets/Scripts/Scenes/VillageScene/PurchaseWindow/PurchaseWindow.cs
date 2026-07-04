@@ -7,19 +7,22 @@ using UnityEngine.UI;
 
 public class PurchaseWindow : MonoBehaviour
 {
+    #region UI
     [SerializeField] private Button backButton;
     [SerializeField] private Text goldCoinText;
     [SerializeField] private Transform merchantGoods;
     [SerializeField] private GameObject goodsPrefab;
     [SerializeField] private Button purchaseButton;
-    #region TipPanel
+    #endregion
+    #region UI - TipPanel
     [Header("TipPanel")]
     [SerializeField] private GameObject tipPanel;
     [SerializeField] private Text tipText;
     [SerializeField] private Button confirmButton;
     #endregion
-
+    #region Data
     private readonly List<GoodsUI> goodsUIs = new();
+    #endregion
     void Awake()
     {
         backButton.onClick.AddListener(() => gameObject.SetActive(false));
@@ -93,6 +96,7 @@ public class PurchaseWindow : MonoBehaviour
                 PersistentService.Instance.AddInventoryItem(item);
             }
         }
+        PersistentService.Instance.AddQuestProgress(QuestCodeConstants.Purchase);
         ShowTipPanel("购买成功！");
     }
     private void ShowTipPanel(string content)

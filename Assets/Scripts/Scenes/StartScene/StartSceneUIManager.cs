@@ -108,8 +108,8 @@ public class StartSceneUIManager : MonoBehaviour
     private void EnterGame(int index, bool isNewGame = false)
     {
         PersistentService.Instance.SetLastSelectedIndex(index);
-        PersistentService.Instance.SetPlayData(index, isNewGame);
         PersistentService.Instance.SetStartGameTimeOnEnterGame(index);
+        PersistentService.Instance.SetPlayData(index, isNewGame);
         SceneLoadService.Instance.LoadScene(SceneLoadConstants.VillageScene);
     }
     private Tween delayTween = null;
