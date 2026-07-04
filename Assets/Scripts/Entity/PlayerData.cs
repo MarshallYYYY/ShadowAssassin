@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 public class PlayerData
 {
@@ -38,21 +39,10 @@ public class PlayerData
     public float DodgeRate { get; set; } = 2;
     #endregion
     /// <summary>
-    /// key: Equipment, value: EnhanceLevel
-    /// </summary>
-    public Dictionary<Equipment, int> EquipmentEnhanceDict = new()
-    {
-        { Equipment.Shoulder, 0 },
-        { Equipment.Top, 0 },
-        { Equipment.Bottom, 0 },
-        { Equipment.Belt, 0 },
-        { Equipment.Shoes, 0 },
-        { Equipment.Weapon, 0 }
-    };
-    /// <summary>
     /// 在使用某个存档首次进入游戏的时候，通过读取配置文件进行写入任务目录
     /// </summary>
     public List<Quest> Quests { get; set; } = new();
+    public List<Equipment> Equipments { get; set; } = new();
 }
 /// <summary>
 /// 现在的效果是：同一种物品如果持有多个，则会显示多个。
@@ -67,15 +57,6 @@ public class InventoryItem
     /// </summary>
     public int Id;
 }
-public enum Equipment
-{
-    Shoulder,
-    Top,
-    Bottom,
-    Belt,
-    Shoes,
-    Weapon
-}
 public class Quest
 {
     // 对应的配置文件中，任务奖励有：Id, QuestName, QuestCode, RequiredCount, Exp, Coin，但这些都是不变的；
@@ -89,4 +70,9 @@ public class Quest
     /// </summary>
     public int ProgressCount { get; set; } = 0;
     public bool IsClaimed { get; set; } = false;
+}
+public class Equipment
+{
+    public string EquipmentName;
+    public int EnhanceLevel;
 }

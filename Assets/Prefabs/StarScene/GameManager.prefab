@@ -311,6 +311,7 @@ MonoBehaviour:
   inventoryItemDataBaseSO: {fileID: 11400000, guid: a41853316ae2f5747835dcebf22fa02a, type: 2}
   dialogueDataBaseSO: {fileID: 11400000, guid: f24f49e52bef176428f0e93692a3728a, type: 2}
   questDataBaseSO: {fileID: 11400000, guid: defb75d1119745b44be8dc56324ba826, type: 2}
+  equipmentDataBaseSO: {fileID: 11400000, guid: 4089631ae12644e4694e4ed1a6239c4b, type: 2}
 --- !u!1 &3398617905968878042
 GameObject:
   m_ObjectHideFlags: 0

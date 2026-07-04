@@ -7,13 +7,3 @@ public class InventoryItemDataBaseSO : ScriptableObject
 {
     public List<InventoryItemSO> Items = new();
 }
-
-[Serializable]
-public class InventoryItemSO
-{
-    public string Name;
-    public int Id;
-    public string Description;
-    public Sprite Sprite;
-    public int Price;
-}

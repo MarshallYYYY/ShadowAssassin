@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 833027258534bc04198becb0a003afd0, type: 3}
+  m_Name: ShoesSO
+  m_EditorClassIdentifier: 
+  EquipmentName: Shoes
+  Sprite: {fileID: 21300000, guid: 95cdfc88384572b4e89adeabb0c2cec8, type: 2}
+  EquipmentEnhanceInfos:
+  - HP: 3
+    Attack: 1
+    Defense: 0
+    GoldCoinCost: 0
+    CostItems: []
+  - HP: 5
+    Attack: 3
+    Defense: 1
+    GoldCoinCost: 300
+    CostItems:
+    - InventoryItemSO: {fileID: 11400000, guid: 184c101a13309e14fa6f3b8633344ad4, type: 2}
+      Count: 3
+    - InventoryItemSO: {fileID: 11400000, guid: 147c425cfb84a554b84f214a1104e7cc, type: 2}
+      Count: 1
+  - HP: 12
+    Attack: 5
+    Defense: 2
+    GoldCoinCost: 600
+    CostItems:
+    - InventoryItemSO: {fileID: 11400000, guid: 147c425cfb84a554b84f214a1104e7cc, type: 2}
+      Count: 2
+    - InventoryItemSO: {fileID: 11400000, guid: 5c23fb5c1d8b93e478e6f8378495908c, type: 2}
+      Count: 2
+  - HP: 20
+    Attack: 8
+    Defense: 4
+    GoldCoinCost: 1200
+    CostItems:
+    - InventoryItemSO: {fileID: 11400000, guid: 9e12cf2a20e9d7f41aeb6a3242c8b172, type: 2}
+      Count: 1
+    - InventoryItemSO: {fileID: 11400000, guid: fb115877201a4224eb0aef4614171803, type: 2}
+      Count: 1

@@ -50,3 +50,13 @@ public class QuestCodeConstants
     public const string Enhance = nameof(Enhance);
     public const string Dungeon = nameof(Dungeon);
 }
+
+public class EquipmentConstants
+{
+    public const string Shoulder = nameof(Shoulder);
+    public const string Top = nameof(Top);
+    public const string Bottom = nameof(Bottom);
+    public const string Belt = nameof(Belt);
+    public const string Shoes = nameof(Shoes);
+    public const string Weapon = nameof(Weapon);
+}

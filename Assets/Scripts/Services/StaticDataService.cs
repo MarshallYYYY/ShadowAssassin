@@ -9,6 +9,10 @@ public class StaticDataService : BaseService<StaticDataService>
     }
     #region Inventory
     [SerializeField] private InventoryItemDataBaseSO inventoryItemDataBaseSO;
+    /// <summary>
+    /// 购买和盲盒Window调用
+    /// </summary>
+    /// <returns></returns>
     public List<InventoryItemSO> GetAllInventoryItemSO()
     {
         return inventoryItemDataBaseSO.Items;
@@ -42,6 +46,21 @@ public class StaticDataService : BaseService<StaticDataService>
     public QuestSO GetQuestSO(string questCode)
     {
         return questDataBaseSO.Quests.Find(questSO => questSO.QuestCode == questCode);
+    }
+    #endregion
+    #region Equipment(Enhance)
+    [SerializeField] private EquipmentDataBaseSO equipmentDataBaseSO;
+    /// <summary>
+    /// 新存档初始化PlayerData的时候调用
+    /// </summary>
+    /// <returns></returns>
+    public List<EquipmentSO> GetAllEquipmentSO()
+    {
+        return equipmentDataBaseSO.Equipments;
+    }
+    public EquipmentSO GetEquipmentSO(string equipmentName)
+    {
+        return equipmentDataBaseSO.Equipments.Find(e => e.EquipmentName == equipmentName);
     }
     #endregion
 }

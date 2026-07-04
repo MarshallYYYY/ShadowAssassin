@@ -120,6 +120,18 @@ public class PersistentService : BaseService<PersistentService>
                 playerData.Quests.Add(quest);
             }
 
+            List<EquipmentSO> equipmentSOs = StaticDataService.Instance.GetAllEquipmentSO();
+            for (int i = 0; i < equipmentSOs.Count; i++)
+            {
+                EquipmentSO equipmentSO = equipmentSOs[i];
+                Equipment equipment = new()
+                {
+                    EquipmentName = equipmentSO.EquipmentName,
+                    EnhanceLevel = 0,
+                };
+                playerData.Equipments.Add(equipment);
+            }
+
             SaveGameTime(index);
         }
         else
@@ -279,6 +291,40 @@ public class PersistentService : BaseService<PersistentService>
         if (quest.ProgressCount >= questSO.RequiredCount)
             return;
         quest.ProgressCount++;
+    }
+    #endregion
+
+    #region Equipment
+    public Equipment GetEquipment(string equipmentName)
+    {
+        return playerData.Equipments.Find(equipment => equipment.EquipmentName == equipmentName);
+    }
+    /// <summary>
+    /// 获取背包中指定Id物品的数量
+    /// </summary>
+    public int GetInventoryItemCount(int itemId)
+    {
+        int count = 0;
+        for (int i = 0; i < playerData.InventoryItems.Count; i++)
+        {
+            if (playerData.InventoryItems[i].Id == itemId)
+                count++;
+        }
+        return count;
+    }
+    /// <summary>
+    /// 从背包中移除指定Id和数量的物品
+    /// </summary>
+    public void RemoveInventoryItemById(int itemId, int removeCount)
+    {
+        for (int i = playerData.InventoryItems.Count - 1; i >= 0 && removeCount > 0; i--)
+        {
+            if (playerData.InventoryItems[i].Id == itemId)
+            {
+                playerData.InventoryItems.RemoveAt(i);
+                removeCount--;
+            }
+        }
     }
     #endregion
 }

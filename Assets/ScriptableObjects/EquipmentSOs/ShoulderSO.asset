@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 833027258534bc04198becb0a003afd0, type: 3}
+  m_Name: ShoulderSO
+  m_EditorClassIdentifier: 
+  EquipmentName: Shoulder
+  Sprite: {fileID: 21300000, guid: 0fca6902f57e3884dbdf8a7e9b2fa928, type: 2}
+  EquipmentEnhanceInfos:
+  - HP: 5
+    Attack: 0
+    Defense: 1
+    GoldCoinCost: 0
+    CostItems: []
+  - HP: 10
+    Attack: 0
+    Defense: 3
+    GoldCoinCost: 500
+    CostItems:
+    - InventoryItemSO: {fileID: 11400000, guid: 184c101a13309e14fa6f3b8633344ad4, type: 2}
+      Count: 5
+    - InventoryItemSO: {fileID: 11400000, guid: 147c425cfb84a554b84f214a1104e7cc, type: 2}
+      Count: 2
+  - HP: 20
+    Attack: 0
+    Defense: 5
+    GoldCoinCost: 1000
+    CostItems:
+    - InventoryItemSO: {fileID: 11400000, guid: 147c425cfb84a554b84f214a1104e7cc, type: 2}
+      Count: 3
+    - InventoryItemSO: {fileID: 11400000, guid: 5c23fb5c1d8b93e478e6f8378495908c, type: 2}
+      Count: 3
+  - HP: 35
+    Attack: 0
+    Defense: 8
+    GoldCoinCost: 2000
+    CostItems:
+    - InventoryItemSO: {fileID: 11400000, guid: 9e12cf2a20e9d7f41aeb6a3242c8b172, type: 2}
+      Count: 2
+    - InventoryItemSO: {fileID: 11400000, guid: fb115877201a4224eb0aef4614171803, type: 2}
+      Count: 1

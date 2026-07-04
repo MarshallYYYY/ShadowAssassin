@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c33d4597961cc045836481d864b3a1f, type: 3}
+  m_Name: PlantSO
+  m_EditorClassIdentifier: 
+  Name: "\u68EE\u6797\u85E4\u8513"
+  Id: 4
+  Description: "\u4E00\u6761\u97E7\u6027\u5341\u8DB3\u7684\u85E4\u8513\uFF0C\u5F2F\u66F2\u5982\u540C\u874E\u4F0F\u7684\u7075\u86C7\uFF0C\u91C7\u81EA\u4F1A\u8BF4\u8BDD\u7684\u5618\u8BED\u4E4B\u6797\u3002\u7528\u5B83\u7F20\u7ED5\u5251\u67C4\u80FD\u589E\u5F3A\u63E1\u529B\uFF0C\u7F1D\u5408\u5728\u76D4\u7532\u4E0A\u80FD\u8D4B\u4E88\u5B83\u751F\u547D\u822C\u7684\u67D4\u97E7\uFF0C\u5B9B\u5982\u68EE\u6797\u81EA\u8EAB\u5728\u5B88\u62A4\u7740\u7A7F\u6234\u8005\u3002"
+  Sprite: {fileID: 21300000, guid: 00d80d042e55779409008e05d607cc8c, type: 3}
+  Price: 20
