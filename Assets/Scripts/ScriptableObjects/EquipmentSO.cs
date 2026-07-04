@@ -22,9 +22,11 @@ public class EquipmentSO : ScriptableObject
 [Serializable]
 public class EquipmentEnhanceLevelInfo
 {
+    [Header("属性")]
     public int HP;
     public int Attack;
     public int Defense;
+    [Header("金币和物品消耗")]
     public int GoldCoinCost;
     public List<CostItem> CostItems = new();
 }

@@ -7,12 +7,12 @@ using UnityEngine;
 public class AttackAnimDataBaseSO : ScriptableObject
 {
     // public Dictionary<AttackType, List<AttackAnim>> AttackAnimList = new();
-    public List<AttackAnim> LightAttackAnims = new();
-    public List<AttackAnim> HeavyAttackAnims = new();
+    public List<AttackAnimSO> LightAttackAnims = new();
+    public List<AttackAnimSO> HeavyAttackAnims = new();
 }
 
 [Serializable]
-public class AttackAnim
+public class AttackAnimSO
 {
     public AnimationClip Clip;
     public string Name;

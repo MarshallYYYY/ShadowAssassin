@@ -3197,7 +3197,7 @@ MonoBehaviour:
   - {fileID: -367862208446106120, guid: da9029c70f5c3334caa5695643d02cad, type: 3}
   - {fileID: -3331126883731354091, guid: 226410eef13f31247a62733a4ea5628c, type: 3}
   - {fileID: 5265963377054049447, guid: 6730422e76930634188d03ee0be97b60, type: 3}
-  attackAnimDB: {fileID: 11400000, guid: f3023cd87a355ef498f1857e598ccf58, type: 2}
+  attackAnimDataBaseSO: {fileID: 11400000, guid: f3023cd87a355ef498f1857e598ccf58, type: 2}
   comboSlider: {fileID: 0}
   separatorTemplate: {fileID: 0}
   separators: {fileID: 0}

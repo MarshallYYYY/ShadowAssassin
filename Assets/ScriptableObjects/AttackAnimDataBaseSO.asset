@@ -43,4 +43,22 @@ MonoBehaviour:
     TotalFrame: 51
     EnterHitFrame: 10
     EnterFollowThroughFrame: 20
-  HeavyAttackAnims: []
+  HeavyAttackAnims:
+  - Clip: {fileID: 0}
+    Name: 
+    Length: 0
+    TotalFrame: 0
+    EnterHitFrame: 0
+    EnterFollowThroughFrame: 0
+  - Clip: {fileID: 0}
+    Name: 
+    Length: 0
+    TotalFrame: 0
+    EnterHitFrame: 0
+    EnterFollowThroughFrame: 0
+  - Clip: {fileID: 0}
+    Name: 
+    Length: 0
+    TotalFrame: 0
+    EnterHitFrame: 0
+    EnterFollowThroughFrame: 0

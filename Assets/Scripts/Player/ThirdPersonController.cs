@@ -20,9 +20,7 @@ public class ThirdPersonController : MonoBehaviour
 
     #region 外部赋值
     [SerializeField] private Transform lockTarget;
-    [SerializeField] private AnimationClip[] lightAttackClips;
-    [SerializeField] private AnimationClip[] heavyAttackClips;
-    [SerializeField] private AttackAnimDataBaseSO attackAnimDB;
+    [SerializeField] private AttackAnimDataBaseSO attackAnimDataBaseSO;
 
     #region Combo Slider
     [SerializeField] private Slider comboSlider;
@@ -287,11 +285,12 @@ public class ThirdPersonController : MonoBehaviour
             // 连击过程中：
             else if (attckType != AttackType.None
                      && comboIndex > 0
-                     && comboIndex < lightAttackClips.Length)
+                     //  && comboIndex < lightAttackClips.Length)
+                     && comboIndex < attackAnimDataBaseSO.LightAttackAnims.Count)
             {
                 // 轻攻击连击（2-5） 和 重攻击 - 转身突刺：仅在前四段轻攻击连击的收尾阶段可触发
                 int currentIndex = comboIndex - 1;
-                bool isCanAttack = currentAnimTime >= attackAnimDB.LightAttackAnims[currentIndex].EnterFollowThroughTime;
+                bool isCanAttack = currentAnimTime >= attackAnimDataBaseSO.LightAttackAnims[currentIndex].EnterFollowThroughTime;
                 if (isCanAttack)
                 {
                     // 轻攻击走连击索引；重攻击打第 3 击（派生技：转身突刺）
@@ -322,24 +321,25 @@ public class ThirdPersonController : MonoBehaviour
         if (attckType == AttackType.Light)
         {
             // 轻攻击：播放第 index 击，索引推进
-            clip = lightAttackClips[index];
+            clip = attackAnimDataBaseSO.LightAttackAnims[index].Clip;
             comboIndex = index + 1;
 
             // 更新 ComboSlider 相关内容
             comboSlider.gameObject.SetActive(true);
 
             ClearSeparators();
-            AttackAnim attackAnim = attackAnimDB.LightAttackAnims[index];
-            currentActionTotalTime = attackAnim.Length;
-            CreateSeparator(currentActionTotalTime, attackAnim.EnterHitTime);
-            CreateSeparator(currentActionTotalTime, attackAnim.EnterFollowThroughTime);
+            AttackAnimSO attackAnimSO = attackAnimDataBaseSO.LightAttackAnims[index];
+            currentActionTotalTime = attackAnimSO.Length;
+            CreateSeparator(currentActionTotalTime, attackAnimSO.EnterHitTime);
+            CreateSeparator(currentActionTotalTime, attackAnimSO.EnterFollowThroughTime);
 
             currentComboText.text = (index + 1).ToString();
         }
         else
         {
-            // 重攻击：永远打第 0 击，连击归零，不显示 Slider
-            clip = heavyAttackClips[index];
+            // 重攻击：0 - 蓄力前刺，1 - 跳跃斩击，2 - 派生攻击
+            // 连击归零，不显示 Slider
+            clip = attackAnimDataBaseSO.HeavyAttackAnims[index].Clip;
             comboIndex = 0;
             currentActionTotalTime = clip.length;
             comboSlider.gameObject.SetActive(false);
