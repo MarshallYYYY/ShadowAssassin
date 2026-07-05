@@ -41,9 +41,11 @@ public class EnhanceWindow : MonoBehaviour
     {
         backButton.onClick.AddListener(() => gameObject.SetActive(false));
 
+        List<Equipment> equipments = PersistentService.Instance.GetAllEquipment();
         for (int i = 0; i < equipmentsTransform.childCount; i++)
         {
             EquipmentItemUI equipmentItemUI = equipmentsTransform.GetChild(i).GetComponent<EquipmentItemUI>();
+            equipmentItemUI.Init(equipments[i]);
             equipmentItemUI.EquipmentSelected += OnEquipmentSelected;
             equipmentItemUIs.Add(equipmentItemUI);
         }
@@ -51,7 +53,8 @@ public class EnhanceWindow : MonoBehaviour
         enhanceButton.onClick.AddListener(OnEnhanceButtonClicked);
     }
     /// <summary>
-    /// 强化按钮的点击事件（按钮仅在金币和材料均足够时方可点击）
+    /// 强化按钮的点击事件（按钮仅在金币和材料均足够时方可点击）：
+    /// 扣除PlayerData中的金币和物品，增加目标装备的强化等级，最后刷新右侧内容
     /// </summary>
     private void OnEnhanceButtonClicked()
     {
@@ -77,8 +80,13 @@ public class EnhanceWindow : MonoBehaviour
         // 强化
         currentEquipment.EnhanceLevel++;
 
-        // 刷新 UI
-        OnEquipmentSelected(currentEquipment.EquipmentName);
+        // 刷新左侧UI：
+        // 这里调用了所有装备的刷新，按逻辑来说应该只调用正在强化的装备的刷新，
+        // 但刷新 6 个和刷 1 个没有任何性能差异（只是 SetActive(bool) 而已）。如果坚持只刷当前选中的，需要多增加一个字段，
+        // 说实话，6 个 SetActive 的总代价小于一次 Find 的遍历——ForEach 反而更快。建议保持：
+        equipmentItemUIs.ForEach(itemUI => itemUI.Refresh(false));
+        // 刷新右侧UI
+        OnEquipmentSelected(currentEquipment);
 
         PersistentService.Instance.AddQuestProgress(QuestCodeConstants.Enhance);
     }
@@ -86,20 +94,22 @@ public class EnhanceWindow : MonoBehaviour
     void OnEnable()
     {
         ownedGoldCoinText.text = $"({PersistentService.Instance.GetGoldCoin()})";
-        for (int i = 0; i < equipmentItemUIs.Count; i++)
-        {
-            equipmentItemUIs[i].Refresh();
-        }
+        // for (int i = 0; i < equipmentItemUIs.Count; i++)
+        // {
+        //     equipmentItemUIs[i].Refresh();
+        // }
+        equipmentItemUIs.ForEach(itemUI => itemUI.Refresh(true));
     }
+
     /// <summary>
-    /// EquipmentItemUI 中点击某个具体的装备图标后的回调函数（事件处理函数）
+    /// EquipmentItemUI 中点击某个具体的装备图标后的回调函数（事件处理函数）：刷新右侧内容
     /// </summary>
-    /// <param name="equipmentName"></param>
-    private void OnEquipmentSelected(string equipmentName)
+    /// <param name="equipment"></param>
+    private void OnEquipmentSelected(Equipment equipment)
     {
         // 获取数据并存储为字段
-        currentEquipment = PersistentService.Instance.GetEquipment(equipmentName);
-        currentEquipmentSO = StaticDataService.Instance.GetEquipmentSO(equipmentName);
+        currentEquipment = equipment;
+        currentEquipmentSO = StaticDataService.Instance.GetEquipmentSO(equipment.EquipmentName);
         if (currentEquipment == null || currentEquipmentSO == null) return;
 
         // 设置右侧（EnhanceInfo）当前装备的当前强化等级的图标和星级
@@ -154,8 +164,6 @@ public class EnhanceWindow : MonoBehaviour
         // 金币和材料都足够才可点击强化按钮
         enhanceButton.interactable = isGoldCoinEnough && isMaterialsEnough;
     }
-    #endregion
-
     private void ClearCostItems()
     {
         for (int i = costItemGroupTransform.childCount - 1; i >= 0; i--)
@@ -163,4 +171,5 @@ public class EnhanceWindow : MonoBehaviour
             Destroy(costItemGroupTransform.GetChild(i).gameObject);
         }
     }
+    #endregion
 }

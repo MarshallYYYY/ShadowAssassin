@@ -10,45 +10,47 @@ public class EquipmentItemUI : MonoBehaviour
     [SerializeField] private Button itemButton;
     [SerializeField] private Image iconImage;
     [SerializeField] private Image selectedImage;
+    [SerializeField] private Transform starGroupTransform;
     #endregion
 
-    int index = -1;
-    void Awake()
+    #region Data
+    private Equipment equipment;
+    #endregion
+    #region 公共接口（外部可订阅/调用）
+    public event Action<Equipment> EquipmentSelected;
+    public void Init(Equipment equipment)
     {
-        index = transform.GetSiblingIndex();
-        itemButton.onClick.AddListener(OnItemButtonClicked);
+        this.equipment = equipment;
+        itemButton.onClick.AddListener(() => OnItemButtonClicked(transform.GetSiblingIndex()));
+        iconImage.sprite = StaticDataService.Instance.GetEquipmentSO(equipment.EquipmentName).Sprite;
     }
-    private void OnItemButtonClicked()
+    /// <summary>
+    /// 因为Refresh()是由EnhanceWindow调用的，所以Refresh()的执行顺序在Awake()前面
+    /// </summary>
+    public void Refresh(bool isOnEnable)
+    {
+        // 更新自己的星星（所有 itemUI 都需要）
+        for (int i = 0; i < starGroupTransform.childCount; i++)
+        {
+            starGroupTransform.GetChild(i).gameObject.SetActive(i < equipment.EnhanceLevel);
+        }
+        if (isOnEnable)
+        {
+            // 只让第一个触发选中
+            // 这个if判断有必要存在，目的是防止if块里的逻辑重复执行6次
+            if (transform.GetSiblingIndex() == 0)
+                OnItemButtonClicked(0);
+        }
+    }
+    #endregion
+    private void OnItemButtonClicked(int index)
     {
         // 除了已被点击的当前物体，其他物体的 selectedImage 都关闭显示
         for (int i = 0; i < transform.parent.childCount; i++)
         {
             EquipmentItemUI itemUI = transform.parent.GetChild(i).GetComponent<EquipmentItemUI>();
-            if (i != index)
-            {
-                itemUI.selectedImage.gameObject.SetActive(false);
-            }
-            else
-            {
-                itemUI.selectedImage.gameObject.SetActive(true);
-                EquipmentSelected?.Invoke(gameObject.name);
-            }
+            itemUI.selectedImage.gameObject.SetActive(i == index);
         }
+        EquipmentSelected?.Invoke(equipment);
     }
-    #region 公共接口（外部可订阅/调用）
-    public event Action<string> EquipmentSelected;
-    public void Refresh()
-    {
-        // 首次进入时设置index
-        if (index == -1)
-        {
-            index = transform.GetSiblingIndex();
-        }
-        // 刷新后只选中第一个装备
-        if (index == 0)
-        {
-            OnItemButtonClicked();
-        }
-    }
-    #endregion
 }

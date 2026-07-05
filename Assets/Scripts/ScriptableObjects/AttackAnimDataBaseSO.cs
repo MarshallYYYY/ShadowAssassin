@@ -14,8 +14,8 @@ public class AttackAnimDataBaseSO : ScriptableObject
 [Serializable]
 public class AttackAnimSO
 {
-    public AnimationClip Clip;
     public string Name;
+    public AnimationClip Clip;
     public float Length;
     public float TotalFrame;
     /// <summary>

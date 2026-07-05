@@ -1,3 +1,4 @@
+using dnlib.DotNet.Pdb;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -295,6 +296,10 @@ public class PersistentService : BaseService<PersistentService>
     #endregion
 
     #region Equipment
+    public List<Equipment> GetAllEquipment()
+    {
+        return playerData.Equipments;
+    }
     public Equipment GetEquipment(string equipmentName)
     {
         return playerData.Equipments.Find(equipment => equipment.EquipmentName == equipmentName);
