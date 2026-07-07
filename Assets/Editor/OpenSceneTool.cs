@@ -8,6 +8,7 @@ public class OpenSceneTool : EditorWindow
     private const string LoadMetadataScene = nameof(LoadMetadataScene);
     private const string StartScene = nameof(StartScene);
     private const string VillageScene = nameof(VillageScene);
+    private const string DungeonScene = nameof(DungeonScene);
 
     // &O 表示快捷键 Alt + O，如果你想改成 Ctrl + Shift + O，可以写成 %#O（% = Ctrl，# = Shift）。
     // 添加菜单项：Tools > 打开目标场景
@@ -89,6 +90,11 @@ public class OpenSceneTool : EditorWindow
         if (GUILayout.Button($"打开 {VillageScene} 场景"))
         {
             OpenTargetScene(VillageScene);
+        }
+
+        if (GUILayout.Button($"打开 {DungeonScene} 场景"))
+        {
+            OpenTargetScene(DungeonScene);
         }
 
         // 允许用户手动输入场景名（可选）

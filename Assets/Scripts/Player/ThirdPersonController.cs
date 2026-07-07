@@ -23,6 +23,7 @@ public class ThirdPersonController : MonoBehaviour
     [SerializeField] private AttackAnimDataBaseSO attackAnimDataBaseSO;
 
     #region Combo Slider
+    [Header("连击指示器")]
     [SerializeField] private Slider comboSlider;
     [SerializeField] private RectTransform separatorTemplate;
     [SerializeField] private RectTransform separators;

@@ -1,10 +1,8 @@
-using dnlib.DotNet.Pdb;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using UnityEngine;
 
 // [DefaultExecutionOrder(-100)]
@@ -143,6 +141,7 @@ public class PersistentService : BaseService<PersistentService>
             playerData = JsonConvert.DeserializeObject<PlayerData>(jsonStr);
         }
     }
+    #region private
     private string GetSaveSlotPath(int index)
     {
         return $"{Application.persistentDataPath}/{PersistentConstants.SaveSlot}{index}.json";
@@ -157,6 +156,7 @@ public class PersistentService : BaseService<PersistentService>
         string jsonStr = JsonConvert.SerializeObject(playerData);
         File.WriteAllText(path, jsonStr);
     }
+    #endregion
     #endregion
     #region LoadGamePanel
     public void GetSaveSlotBasicInfo(int index, out int level, out float totalPlayTime, out DateTime lastPlayTime)

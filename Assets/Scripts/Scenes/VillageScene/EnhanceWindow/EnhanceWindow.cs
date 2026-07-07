@@ -99,6 +99,8 @@ public class EnhanceWindow : MonoBehaviour
         //     equipmentItemUIs[i].Refresh();
         // }
         equipmentItemUIs.ForEach(itemUI => itemUI.Refresh(true));
+        // Refresh() 会刷新左侧每一个装备UI的StarGroup，并调用左侧第一个装备按钮的点击事件，
+        // 继而调用本.cs文件中的OnEquipmentSelected()，用以刷新右侧UI。
     }
 
     /// <summary>

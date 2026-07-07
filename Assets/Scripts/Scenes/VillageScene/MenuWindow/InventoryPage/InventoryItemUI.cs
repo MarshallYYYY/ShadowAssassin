@@ -12,6 +12,7 @@ public class InventoryItemUI : MonoBehaviour, IPointerEnterHandler, IPointerClic
     #region Data
     private InventoryItem inventoryItem;
     private InventoryItemSO inventoryItemSO;
+    // TODO：移除上层UI物体的引用，使用事件？
     private InventoryPage inventoryPage;
     private bool isSelected = false;
     #endregion

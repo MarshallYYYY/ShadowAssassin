@@ -68,7 +68,7 @@ public class DialogueWindow : MonoBehaviour
     {
         nextButton.onClick.AddListener(OnNextButtonClicked);
 
-        departButton.onClick.AddListener(() => { });
+        departButton.onClick.AddListener(() => SceneLoadService.Instance.LoadScene(SceneLoadConstants.DungeonScene));
         cancelKnightButton.onClick.AddListener(() =>
         {
             knightPanel.SetActive(false);

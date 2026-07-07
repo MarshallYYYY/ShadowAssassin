@@ -25,8 +25,10 @@ public class EquipmentItemUI : MonoBehaviour
         iconImage.sprite = StaticDataService.Instance.GetEquipmentSO(equipment.EquipmentName).Sprite;
     }
     /// <summary>
-    /// 因为Refresh()是由EnhanceWindow调用的，所以Refresh()的执行顺序在Awake()前面
+    /// 更新当前装备的StarGroup，并按需选择是否选中第一个装备。
+    /// 因为Refresh()是由EnhanceWindow调用的，所以Refresh()的执行顺序在Awake()前面。
     /// </summary>
+    /// <param name="isOnEnable">true：更新StarGroup，并设置默认值，也就是选中第一个装备；false：只更新StarGroup</param>
     public void Refresh(bool isOnEnable)
     {
         // 更新自己的星星（所有 itemUI 都需要）

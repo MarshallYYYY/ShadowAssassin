@@ -8,10 +8,7 @@ using UnityEngine.InputSystem;
 public class ThirdPersonCamera : MonoBehaviour
 {
     #region SerializeField
-    /// <summary>
-    /// Player - Look Root
-    /// </summary>
-    [SerializeField] private GameObject cameraTarget;
+    [SerializeField] private Transform virtualCameraFollowTarget;
     /// <summary>
     /// 视角往上的最大角度
     /// </summary>
@@ -21,6 +18,7 @@ public class ThirdPersonCamera : MonoBehaviour
     /// </summary>
     [SerializeField] private float bottomClamp = -30.0f;
     [SerializeField] private float lookScale = 0.5f;
+    // [SerializeField] private CinemachineVirtualCamera virtualCamera;
     #endregion
 
     #region Data
@@ -43,13 +41,14 @@ public class ThirdPersonCamera : MonoBehaviour
         inputActions.Player.Look.canceled += OnLook;
 
         // 保存摄像机目标的Y轴角度
-        cinemachineTargetYaw = cameraTarget.transform.rotation.eulerAngles.y;
+        cinemachineTargetYaw = virtualCameraFollowTarget.transform.rotation.eulerAngles.y;
 
-        var vcam = FindObjectOfType<CinemachineVirtualCamera>();
-        if (vcam != null && cameraTarget != null)
-        {
-            vcam.Follow = cameraTarget.transform;
-        }
+        // var vcam = FindObjectOfType<CinemachineVirtualCamera>();
+        // if (vcam != null && cameraTarget != null)
+        // {
+        //     vcam.Follow = cameraTarget.transform;
+        // }
+        // virtualCamera.Follow = cameraTarget.transform;
     }
     #region Input Actions
     private ThirdPersonControl inputActions;
@@ -81,7 +80,7 @@ public class ThirdPersonCamera : MonoBehaviour
         cinemachineTargetYaw = ClampAngle(cinemachineTargetYaw, float.MinValue, float.MaxValue);
         cinemachineTargetPitch = ClampAngle(cinemachineTargetPitch, bottomClamp, topClamp);
 
-        cameraTarget.transform.rotation = Quaternion.Euler(cinemachineTargetPitch, cinemachineTargetYaw, 0f);
+        virtualCameraFollowTarget.transform.rotation = Quaternion.Euler(cinemachineTargetPitch, cinemachineTargetYaw, 0f);
     }
     private float ClampAngle(float angle, float min, float max)
     {
