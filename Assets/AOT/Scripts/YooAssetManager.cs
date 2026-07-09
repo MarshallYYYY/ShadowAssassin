@@ -212,8 +212,7 @@ public class YooAssetManager : MonoBehaviour
 
         string localVersion = PlayerPrefs.GetString(YooAssetConstants.GameVersion);
         string serverVersion = operation.PackageVersion;
-        Debug.LogWarning($"本地包版本：{localVersion}");
-        Debug.LogWarning($"服务器包版本：{serverVersion}");
+        Debug.Log($"本地包版本：{localVersion}，服务器包版本：{serverVersion}");
         // 如果获取远端资源版本成功，说明当前网络连接通畅，可以走正常更新流程。
         if (operation.Status == EOperationStatus.Succeed)
         {

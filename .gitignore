@@ -6,6 +6,12 @@
 # See: https://github.com/github/gitignore/tree/main/Global
 #
 
+.codely.packages
+.codely-cli
+.codelyignore
+.com-unity-codely.json
+CODELY.md
+
 Bundles
 HybridCLRData
 yoo

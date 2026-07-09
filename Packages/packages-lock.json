@@ -1,5 +1,14 @@
 {
   "dependencies": {
+    "cn.tuanjie.codely.bridge": {
+      "version": "file:../.codely.packages/cn.tuanjie.codely.bridge@1.0.67",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.ext.nunit": "1.0.6",
+        "com.unity.ugui": "1.0.0"
+      }
+    },
     "com.code-philosophy.hybridclr": {
       "version": "https://gitee.com/focus-creative-games/hybridclr_unity.git",
       "depth": 0,
@@ -50,7 +59,7 @@
     },
     "com.unity.ext.nunit": {
       "version": "1.0.6",
-      "depth": 2,
+      "depth": 1,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
