@@ -6,6 +6,9 @@
 # See: https://github.com/github/gitignore/tree/main/Global
 #
 
+.vscode/
+.vsconfig
+
 .codely.packages
 .codely-cli
 .codelyignore

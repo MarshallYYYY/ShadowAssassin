@@ -5,6 +5,7 @@ public static class YooAssetConstants
 public static class Constants
 {
     public const string NpcTag = "NPC";
+    public const string PlayerTag = "Player";
 }
 public static class PersistentConstants
 {
@@ -35,6 +36,9 @@ public static class AnimatorConstants
 
     public const string Avoid = nameof(Avoid);
     public const string Roll = nameof(Roll);
+
+    public const float AvoidAnimTotalTime = 0.667f;
+    public const float RollAnimTotalTime = 1.167f;
 }
 public class NpcGameObjectNameConstants
 {
@@ -60,4 +64,10 @@ public class EquipmentConstants
     public const string Belt = nameof(Belt);
     public const string Shoes = nameof(Shoes);
     public const string Weapon = nameof(Weapon);
+}
+
+public static class EnemyConstants
+{
+    public const string EnemyTag = "Enemy";
+    public const string EnemyLayer = "Enemy";
 }

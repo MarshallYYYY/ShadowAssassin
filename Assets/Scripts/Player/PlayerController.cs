@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -26,11 +27,14 @@ public class PlayerController : MonoBehaviour
     private PlayerAttackState attackState;
     private PlayerRollState rollState;
     private PlayerAvoidState avoidState;
+    private PlayerHitState hitState;
+    private PlayerDeadState deadState;
     #endregion
 
     #region 外部赋值
     [SerializeField] private Transform lockTarget;
     [SerializeField] private AttackAnimDataBaseSO attackAnimDataBaseSO;
+    [SerializeField] private WeaponHitbox weaponHitbox;
 
     #region Combo Slider
     [Header("连击指示器")]
@@ -38,6 +42,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private RectTransform separatorTemplate;
     [SerializeField] private RectTransform separators;
     [SerializeField] private Text currentComboText;
+    #endregion
+
+    #region 血量
+    [Header("血量")]
+    [SerializeField] private HealthBarController playerHealthBar;
     #endregion
     #endregion
 
@@ -68,6 +77,23 @@ public class PlayerController : MonoBehaviour
     /// 当前动作动画的总时长
     /// </summary>
     private float currentActionTotalTime = 0;
+    /// <summary>
+    /// 当前攻击的 AttackAnimSO，用于获取判定时间窗口和伤害值
+    /// </summary>
+    private AttackAnimSO currentAttackAnimSO;
+    #endregion
+
+    #region 血量数据
+    private float currentHP;
+    public float CurrentHP => currentHP;
+    public bool IsDead => currentHP <= 0f;
+    #endregion
+
+    #region 事件
+    /// <summary>
+    /// 命中敌人时触发，参数为被命中的敌人
+    /// </summary>
+    public event Action<EnemyController> OnHitEnemyEvent;
     #endregion
 
     #region 公开属性 — 供 States 访问
@@ -103,6 +129,7 @@ public class PlayerController : MonoBehaviour
     public int ComboIndex { get => comboIndex; set => comboIndex = value; }
     public float CurrentAnimTime { get => currentAnimTime; set => currentAnimTime = value; }
     public float CurrentActionTotalTime { get => currentActionTotalTime; set => currentActionTotalTime = value; }
+    public AttackAnimSO CurrentAttackAnimSO { get => currentAttackAnimSO; set => currentAttackAnimSO = value; }
     #endregion
 
     #region 状态机
@@ -115,6 +142,8 @@ public class PlayerController : MonoBehaviour
     public PlayerAttackState AttackState => attackState;
     public PlayerRollState RollState => rollState;
     public PlayerAvoidState AvoidState => avoidState;
+    public PlayerHitState HitState => hitState;
+    public PlayerDeadState DeadState => deadState;
     #endregion
     #endregion
 
@@ -139,6 +168,16 @@ public class PlayerController : MonoBehaviour
         comboSlider.gameObject.SetActive(false);
         separatorTemplate.gameObject.SetActive(false);
 
+        // 初始化血量
+        currentHP = PersistentService.Instance.GetPlayerData().HP;
+        playerHealthBar?.SetHP(currentHP, PersistentService.Instance.GetPlayerData().HP);
+
+        // 初始化武器
+        if (weaponHitbox != null)
+        {
+            weaponHitbox.Initialize(this);
+        }
+
         // 初始化状态机
         stateMachine = new StateMachine<PlayerController>(this);
         idleState = new PlayerIdleState(this);
@@ -146,6 +185,8 @@ public class PlayerController : MonoBehaviour
         attackState = new PlayerAttackState(this);
         rollState = new PlayerRollState(this);
         avoidState = new PlayerAvoidState(this);
+        hitState = new PlayerHitState(this);
+        deadState = new PlayerDeadState(this);
 
         stateMachine.ChangeState(idleState);
     }
@@ -157,7 +198,6 @@ public class PlayerController : MonoBehaviour
 
     void OnDestroy()
     {
-        // 使用命名方法注册回调，可在 OnDestroy 中正确取消订阅
         if (inputActions != null)
         {
             inputActions.Player.Move.performed -= OnMove;
@@ -222,6 +262,7 @@ public class PlayerController : MonoBehaviour
             AttackAnimSO attackAnimSO = attackAnimDataBaseSO.LightAttackAnims[index];
             clip = attackAnimSO.Clip;
             comboIndex = index + 1;
+            currentAttackAnimSO = attackAnimSO;
 
             // 更新 ComboSlider 相关内容
             comboSlider.gameObject.SetActive(true);
@@ -237,8 +278,10 @@ public class PlayerController : MonoBehaviour
         {
             // 重攻击：0 - 蓄力前刺，1 - 跳跃斩击，2 - 派生攻击
             // 连击归零，不显示 Slider
-            clip = attackAnimDataBaseSO.HeavyAttackAnims[index].Clip;
+            AttackAnimSO attackAnimSO = attackAnimDataBaseSO.HeavyAttackAnims[index];
+            clip = attackAnimSO.Clip;
             comboIndex = 0;
+            currentAttackAnimSO = attackAnimSO;
             currentActionTotalTime = clip.length;
             comboSlider.gameObject.SetActive(false);
 
@@ -252,6 +295,55 @@ public class PlayerController : MonoBehaviour
     public void StopAfterImage()
     {
         afterImage.StopEffect();
+    }
+
+    /// <summary>
+    /// 启用武器伤害判定
+    /// </summary>
+    public void EnableWeaponHitbox()
+    {
+        if (weaponHitbox != null && currentAttackAnimSO != null)
+        {
+            weaponHitbox.EnableHitbox(currentAttackAnimSO.Damage);
+        }
+    }
+
+    /// <summary>
+    /// 关闭武器伤害判定
+    /// </summary>
+    public void DisableWeaponHitbox()
+    {
+        weaponHitbox?.DisableHitbox();
+    }
+
+    /// <summary>
+    /// 受到伤害
+    /// </summary>
+    public void TakeDamage(float damage)
+    {
+        if (IsDead)
+            return;
+
+        currentHP -= damage;
+        currentHP = Mathf.Max(currentHP, 0f);
+        playerHealthBar?.SetHP(currentHP, PersistentService.Instance.GetPlayerData().HP);
+
+        if (currentHP <= 0f)
+        {
+            stateMachine.ChangeState(deadState);
+        }
+        else
+        {
+            stateMachine.ChangeState(hitState);
+        }
+    }
+
+    /// <summary>
+    /// 命中敌人时由 WeaponHitbox 调用
+    /// </summary>
+    public void OnHitEnemy(EnemyController enemy)
+    {
+        OnHitEnemyEvent?.Invoke(enemy);
     }
     #endregion
 
@@ -273,7 +365,6 @@ public class PlayerController : MonoBehaviour
 
     public void ClearSeparators()
     {
-        // 使用 DestroyImmediate 立即销毁
         while (separators.childCount > 0)
         {
             Transform child = separators.GetChild(0);

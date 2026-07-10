@@ -18,7 +18,7 @@ public class PlayerAvoidState : IState
     {
         player.SetAnimatorBeforeAction();
         player.Animator.SetTrigger(AnimatorConstants.Avoid);
-        player.CurrentActionTotalTime = 0;
+        player.CurrentActionTotalTime = AnimatorConstants.AvoidAnimTotalTime;
         player.CurrentAnimTime = 0;
         player.AfterImage.StartEffect();
         // 临时：1 秒后关闭残影

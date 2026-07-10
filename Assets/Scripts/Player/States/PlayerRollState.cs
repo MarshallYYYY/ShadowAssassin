@@ -17,7 +17,7 @@ public class PlayerRollState : IState
     {
         player.SetAnimatorBeforeAction();
         player.Animator.SetTrigger(AnimatorConstants.Roll);
-        player.CurrentActionTotalTime = 0;
+        player.CurrentActionTotalTime = AnimatorConstants.RollAnimTotalTime;
         player.CurrentAnimTime = 0;
     }
 

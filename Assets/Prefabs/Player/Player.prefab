@@ -3255,7 +3255,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7640127192256522133}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fa70fda20d025434cbbeeb5774dde2cb, type: 3}
   m_Name: 
@@ -3280,13 +3280,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lockTarget: {fileID: 0}
   attackAnimDataBaseSO: {fileID: 11400000, guid: f3023cd87a355ef498f1857e598ccf58, type: 2}
+  weaponHitbox: {fileID: 4416783304309317248}
   comboSlider: {fileID: 0}
   separatorTemplate: {fileID: 0}
   separators: {fileID: 0}
   currentComboText: {fileID: 0}
+  playerHealthBar: {fileID: 0}
   rotationSmoothTime: 0.1
   moveSpeed: 5
-  lockedTargetRotateSpeed: 5
 --- !u!114 &8329557532580956416
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4346,8 +4347,28 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3530610473986485672, guid: 842df8073cc111049babba25803d9552, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4416783304309317248}
   m_SourcePrefab: {fileID: 100100000, guid: 842df8073cc111049babba25803d9552, type: 3}
+--- !u!1 &6266201262752677341 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3530610473986485672, guid: 842df8073cc111049babba25803d9552, type: 3}
+  m_PrefabInstance: {fileID: 7352473134647660661}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4416783304309317248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6266201262752677341}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b0c65a68f5526a4e9e7579beeb7b625, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &6754788618856458087 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4302326506581702418, guid: 842df8073cc111049babba25803d9552, type: 3}

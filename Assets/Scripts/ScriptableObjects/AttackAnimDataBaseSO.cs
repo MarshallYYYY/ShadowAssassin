@@ -29,6 +29,11 @@ public class AttackAnimSO
     // public int OffsetFrame;
 
     /// <summary>
+    /// 该攻击动作的伤害值
+    /// </summary>
+    public float Damage;
+
+    /// <summary>
     /// 判定阶段起始的归一化时间（0~1）
     /// </summary>
     public float EnterHitTime => (float)(EnterHitFrame / TotalFrame) * Length;

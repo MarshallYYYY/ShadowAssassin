@@ -26,7 +26,7 @@ public class PlayerData
     #endregion
 
     #region 人物属性
-    public float HP { get; set; } = 100;
+    public float HP { get; set; } = 1000;
     public float Attack { get; set; } = 10;
     public float Defense { get; set; } = 5;
     /// <summary>

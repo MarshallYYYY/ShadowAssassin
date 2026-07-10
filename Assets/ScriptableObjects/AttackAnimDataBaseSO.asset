@@ -19,30 +19,35 @@ MonoBehaviour:
     TotalFrame: 32
     EnterHitFrame: 7
     EnterFollowThroughFrame: 12
+    Damage: 8
   - Name: 2
     Clip: {fileID: -3628097948645926626, guid: d84c3193750c7b7449fe719300694175, type: 3}
     Length: 1.167
     TotalFrame: 35
     EnterHitFrame: 7
     EnterFollowThroughFrame: 15
+    Damage: 10
   - Name: 3
     Clip: {fileID: -293836703130871119, guid: 25ebbfee16df2bc4e848dcf47d0c2ec8, type: 3}
     Length: 1.5
     TotalFrame: 45
     EnterHitFrame: 12
     EnterFollowThroughFrame: 19
+    Damage: 12
   - Name: 4
     Clip: {fileID: -2875389680015728377, guid: 3052cb8fcd3921a48a2f9dc9c5f66dee, type: 3}
     Length: 1.567
     TotalFrame: 47
     EnterHitFrame: 20
     EnterFollowThroughFrame: 27
+    Damage: 14
   - Name: 5
     Clip: {fileID: 3265797440268788423, guid: 5c1487dd9cd93ff4a83db1f16ad0691a, type: 3}
     Length: 1.7
     TotalFrame: 51
     EnterHitFrame: 10
     EnterFollowThroughFrame: 20
+    Damage: 16
   HeavyAttackAnims:
   - Name: "\u84C4\u529B\u524D\u523A"
     Clip: {fileID: -367862208446106120, guid: da9029c70f5c3334caa5695643d02cad, type: 3}
@@ -50,15 +55,18 @@ MonoBehaviour:
     TotalFrame: 0
     EnterHitFrame: 0
     EnterFollowThroughFrame: 0
+    Damage: 25
   - Name: "\u8DF3\u8DC3\u65A9\u51FB"
     Clip: {fileID: -3331126883731354091, guid: 226410eef13f31247a62733a4ea5628c, type: 3}
     Length: 0
     TotalFrame: 0
     EnterHitFrame: 0
     EnterFollowThroughFrame: 0
+    Damage: 30
   - Name: "\u6D3E\u751F\u653B\u51FB"
     Clip: {fileID: 5265963377054049447, guid: 6730422e76930634188d03ee0be97b60, type: 3}
     Length: 0
     TotalFrame: 0
     EnterHitFrame: 0
     EnterFollowThroughFrame: 0
+    Damage: 35

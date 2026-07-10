@@ -21,7 +21,7 @@ public class RotateModel : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public void Init()
     {
-        model = GameObject.FindWithTag("Player").transform;
+        model = GameObject.FindWithTag(Constants.PlayerTag).transform;
         // if (previewCamera == null)
         // {
         //     previewCamera = GameObject.FindWithTag("CharacterShowCamera").GetComponent<Camera>();
