@@ -3,13 +3,14 @@ using UnityEngine;
 
 /// <summary>
 /// 敌人控制器：基于 FSM 驱动巡逻、追击、攻击、受击、死亡状态。
-/// 使用 Capsule 代替模型，挂载 CharacterController 进行移动。
 /// </summary>
+[RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(CapsuleCollider))]
 public class EnemyController : MonoBehaviour
 {
     #region 组件
+    private Animator animator;
     private CharacterController characterController;
     private CapsuleCollider capsuleCollider;
     private StateMachine<EnemyController> stateMachine;
@@ -25,6 +26,7 @@ public class EnemyController : MonoBehaviour
 
     #region 配置
     [SerializeField] private EnemySO config;
+    [SerializeField] private GameObject enemyHealthBarPrefab;
     #endregion
 
     #region 运行时数据
@@ -32,6 +34,7 @@ public class EnemyController : MonoBehaviour
     private Vector3 spawnPosition;
     private float lastAttackTime;
     private bool isDead = false;
+    private EnemyHealthBar enemyHealthBar;
     #endregion
 
     #region 事件
@@ -47,6 +50,7 @@ public class EnemyController : MonoBehaviour
 
     #region 公开属性
     #region 组件与状态机
+    public Animator Animator => animator;
     public CharacterController CharacterController => characterController;
     public StateMachine<EnemyController> StateMachine => stateMachine;
     public EnemyPatrolState PatrolState => patrolState;
@@ -94,6 +98,7 @@ public class EnemyController : MonoBehaviour
     #region 生命周期
     void Awake()
     {
+        animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
         capsuleCollider = GetComponent<CapsuleCollider>();
 
@@ -134,6 +139,18 @@ public class EnemyController : MonoBehaviour
         characterController.enabled = true;
         capsuleCollider.enabled = true;
 
+        // 创建血条 UI
+        if (enemyHealthBarPrefab != null)
+        {
+            Canvas canvas = FindObjectOfType<Canvas>();
+            if (canvas != null)
+            {
+                GameObject barGo = Instantiate(enemyHealthBarPrefab, canvas.transform);
+                enemyHealthBar = barGo.GetComponent<EnemyHealthBar>();
+                enemyHealthBar.HideBar();
+            }
+        }
+
         // 重置状态
         stateMachine.ChangeState(patrolState);
     }
@@ -143,6 +160,14 @@ public class EnemyController : MonoBehaviour
     /// </summary>
     public void OnDespawn()
     {
+        // 销毁血条 UI
+        if (enemyHealthBar != null)
+        {
+            enemyHealthBar.HideBar();
+            Destroy(enemyHealthBar.gameObject);
+            enemyHealthBar = null;
+        }
+
         isDead = false;
         gameObject.SetActive(false);
     }
@@ -159,9 +184,17 @@ public class EnemyController : MonoBehaviour
         currentHP = Mathf.Max(currentHP, 0f);
         OnHitEvent?.Invoke(this);
 
+        // 更新血条
+        if (enemyHealthBar != null)
+        {
+            enemyHealthBar.OnHit();
+            enemyHealthBar.SetHP(currentHP, config.MaxHP);
+        }
+
         if (currentHP <= 0f)
         {
             isDead = true;
+            enemyHealthBar?.OnDeath();
             OnDeathEvent?.Invoke(this);
             stateMachine.ChangeState(deadState);
         }
@@ -222,6 +255,14 @@ public class EnemyController : MonoBehaviour
     public void RecordAttack()
     {
         lastAttackTime = Time.time;
+    }
+
+    /// <summary>
+    /// 播放指定动画状态（CrossFade）
+    /// </summary>
+    public void PlayAnim(string stateName)
+    {
+        animator.CrossFade(stateName, 0f);
     }
     #endregion
 }

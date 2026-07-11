@@ -15,8 +15,6 @@ public class PlayerDeadState : IState
 
     public void OnEnter()
     {
-        // 关闭武器判定
-        player.DisableWeaponHitbox();
     }
 
     public void OnUpdate()

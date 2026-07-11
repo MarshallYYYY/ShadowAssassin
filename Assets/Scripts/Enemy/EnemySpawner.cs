@@ -77,6 +77,12 @@ public class EnemySpawner : MonoBehaviour
         activeEnemies.Remove(enemy);
         enemy.OnDespawn();
         pool.Enqueue(enemy);
+        if (activeEnemies.Count == 0)
+        {
+            Debug.LogError("End");
+            PersistentService.Instance.AddQuestProgress(QuestCodeConstants.Dungeon);
+            SceneLoadService.Instance.LoadScene(SceneLoadConstants.VillageScene);
+        }
     }
     #endregion
 

@@ -267,10 +267,10 @@ public class PersistentService : BaseService<PersistentService>
     {
         return playerData.Quests;
     }
-    public Quest GetQuest(string questCode)
-    {
-        return playerData.Quests.Find(quest => quest.QuestCode == questCode);
-    }
+    // public Quest GetQuest(string questCode)
+    // {
+    //     return playerData.Quests.Find(quest => quest.QuestCode == questCode);
+    // }
     public int GetQuestProgress(string questCode)
     {
         return playerData.Quests.Find(quest => quest.QuestCode == questCode).ProgressCount;
@@ -300,10 +300,10 @@ public class PersistentService : BaseService<PersistentService>
     {
         return playerData.Equipments;
     }
-    public Equipment GetEquipment(string equipmentName)
-    {
-        return playerData.Equipments.Find(equipment => equipment.EquipmentName == equipmentName);
-    }
+    // public Equipment GetEquipment(string equipmentName)
+    // {
+    //     return playerData.Equipments.Find(equipment => equipment.EquipmentName == equipmentName);
+    // }
     /// <summary>
     /// 获取背包中指定Id物品的数量
     /// </summary>
@@ -332,4 +332,9 @@ public class PersistentService : BaseService<PersistentService>
         }
     }
     #endregion
+
+    public float GetPlayerHP()
+    {
+        return playerData.HP;
+    }
 }

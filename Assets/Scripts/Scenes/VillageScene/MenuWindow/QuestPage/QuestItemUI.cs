@@ -19,6 +19,7 @@ public class QuestItemUI : MonoBehaviour
     private Quest quest;
     private QuestSO questSO;
     #endregion
+    #region 公共方法
     public void Init(Quest quest, QuestSO questSO)
     {
         this.quest = quest;
@@ -42,6 +43,9 @@ public class QuestItemUI : MonoBehaviour
         claimButton.interactable = false;
         claimText.text = "已领取";
     }
+    #endregion
+
+    #region UI刷新
     void OnEnable()
     {
         RefreshProgress();
@@ -77,4 +81,5 @@ public class QuestItemUI : MonoBehaviour
             claimText.text = "领取";
         }
     }
+    #endregion
 }

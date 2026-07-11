@@ -24,11 +24,11 @@ public class PlayerAttackState : IState
         isHitboxActive = false;
 
         // 此时从 Idle/Move 进入，ComboIndex == 0，表示新攻击
-        if (player.AttackType == AttackType.None)
+        if (player.AttackType == PlayerAttackType.None)
             return;
 
         // 如果处于 Move 状态 且 点击了重攻击键，则重攻击播放的是 重攻击 - 跳跃斩击 动作
-        if (player.Animator.GetFloat(AnimatorConstants.AxisY) >= 0.9f && player.AttackType == AttackType.Heavy)
+        if (player.Animator.GetFloat(AnimatorConstants.AxisY) >= 0.9f && player.AttackType == PlayerAttackType.Heavy)
         {
             player.PlayAttack(1, player.AttackType);
         }
@@ -38,7 +38,7 @@ public class PlayerAttackState : IState
             player.PlayAttack(0, player.AttackType);
         }
 
-        player.AttackType = AttackType.None;
+        player.AttackType = PlayerAttackType.None;
     }
 
     public void OnUpdate()
@@ -68,7 +68,7 @@ public class PlayerAttackState : IState
         }
 
         // 3. 处理连击输入
-        if (player.AttackType != AttackType.None
+        if (player.AttackType != PlayerAttackType.None
             && player.ComboIndex > 0
             && player.ComboIndex < player.AttackAnimDataBaseSO.LightAttackAnims.Count)
         {
@@ -85,27 +85,23 @@ public class PlayerAttackState : IState
                 }
 
                 // 轻攻击走连击索引；重攻击打第 3 击（派生技：转身突刺）
-                int index = (player.AttackType == AttackType.Light) ? player.ComboIndex : 2;
+                int index = (player.AttackType == PlayerAttackType.Light) ? player.ComboIndex : 2;
                 player.PlayAttack(index, player.AttackType);
             }
-            player.AttackType = AttackType.None;
+            player.AttackType = PlayerAttackType.None;
         }
 
         // 4. 动画播完 → 切回 Idle
         if (player.CurrentAnimTime >= player.CurrentActionTotalTime)
         {
-            player.StateMachine.ChangeState(player.IdleState);
+            player.StateMachine.ChangeState(player.LocomotionState);
         }
     }
 
     public void OnExit()
     {
         // 确保武器判定已关闭
-        if (isHitboxActive)
-        {
-            player.DisableWeaponHitbox();
-            isHitboxActive = false;
-        }
+        player.DisableWeaponHitbox();
 
         // 清理攻击数据
         player.ComboIndex = 0;

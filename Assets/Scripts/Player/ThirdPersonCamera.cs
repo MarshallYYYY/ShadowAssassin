@@ -56,6 +56,8 @@ public class ThirdPersonCamera : MonoBehaviour
     /// </summary>
     private float lockYawVelocity;
     private float lockPitchVelocity;
+    private bool wasLocking = false;
+
     void LateUpdate()
     {
         // 跟随目标可能为空（场景未正确配置）
@@ -66,6 +68,7 @@ public class ThirdPersonCamera : MonoBehaviour
         // ===== 锁定模式：禁止鼠标控制视角，将视角平滑转向锁定目标 =====
         if (playerController != null && playerController.IsLock)
         {
+            wasLocking = true;
             if (playerController.LockTarget != null)
             {
                 // 计算从摄像机跟随目标指向锁定目标的方向向量
@@ -92,6 +95,19 @@ public class ThirdPersonCamera : MonoBehaviour
                 followTarget.rotation = Quaternion.Euler(cinemachineTargetPitch, cinemachineTargetYaw, 0f);
             }
             return;
+        }
+
+        // 从锁定切换到自由视角的第一帧：用当前 followTarget 的实际朝向同步 Yaw/Pitch，避免视角突变
+        if (wasLocking)
+        {
+            wasLocking = false;
+            Vector3 euler = followTarget.rotation.eulerAngles;
+            cinemachineTargetYaw = euler.y;
+            cinemachineTargetPitch = euler.x > 180f ? euler.x - 360f : euler.x;
+            cinemachineTargetPitch = ClampAngle(cinemachineTargetPitch, bottomClamp, topClamp);
+            // 重置锁定速度缓存，避免下次锁定时残留
+            lockYawVelocity = 0f;
+            lockPitchVelocity = 0f;
         }
 
         // ===== 自由视角模式：通过鼠标输入控制视角 =====

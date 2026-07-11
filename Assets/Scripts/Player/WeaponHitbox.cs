@@ -1,63 +1,65 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
 /// 武器伤害盒，挂在 Sword 物体上。
-/// 在攻击的判定阶段启用 Collider Trigger，检测碰到的 Enemy 并造成伤害。
+/// 攻击判定阶段启用 Collider，通过 OnTriggerEnter 检测 Enemy 并造成伤害。
+/// 使用 HashSet 去重，同一敌人每次攻击只命中一次。
 /// </summary>
 [RequireComponent(typeof(Collider))]
 public class WeaponHitbox : MonoBehaviour
 {
-    private Collider hitboxCollider;
+    #region 数据
     private float currentDamage;
-
-    /// <summary>
-    /// 当前激活的 PlayerController，用于通知命中事件
-    /// </summary>
+    private bool isActive;
     private PlayerController playerController;
+    #endregion
 
+    #region 生命周期
     void Awake()
     {
-        hitboxCollider = GetComponent<Collider>();
-        hitboxCollider.isTrigger = true;
-        hitboxCollider.enabled = false;
-    }
-
-    /// <summary>
-    /// 设置 PlayerController 引用
-    /// </summary>
-    public void Initialize(PlayerController controller)
-    {
-        playerController = controller;
-    }
-
-    /// <summary>
-    /// 启用伤害判定，设置当前伤害值
-    /// </summary>
-    public void EnableHitbox(float damage)
-    {
-        currentDamage = damage;
-        hitboxCollider.enabled = true;
-    }
-
-    /// <summary>
-    /// 关闭伤害判定
-    /// </summary>
-    public void DisableHitbox()
-    {
-        hitboxCollider.enabled = false;
+        Collider col = GetComponent<Collider>();
+        col.isTrigger = true;
+        col.enabled = false;
     }
 
     void OnTriggerEnter(Collider other)
     {
-        // 只检测 Enemy Layer
-        if (other.gameObject.layer != LayerMask.NameToLayer(EnemyConstants.EnemyLayer))
+        if (!isActive)
+            return;
+        // if (!other.CompareTag(EnemyConstants.EnemyTag))
+        if (other.gameObject.tag is not EnemyConstants.EnemyTag)
             return;
 
         EnemyController enemy = other.GetComponent<EnemyController>();
-        if (enemy == null)
-            return;
-
         enemy.TakeDamage(currentDamage);
-        playerController?.OnHitEnemy(enemy);
+        playerController.OnHitEnemy(enemy);
     }
+    #endregion
+
+    #region 公共方法
+    public void Init(PlayerController playerController)
+    {
+        this.playerController = playerController;
+    }
+    /// <summary>
+    /// 启用伤害判定：开启 Collider、清空命中记录
+    /// </summary>
+    public void EnableHitbox(float damage)
+    {
+        currentDamage = damage;
+        isActive = true;
+        GetComponent<Collider>().enabled = true;
+    }
+
+    /// <summary>
+    /// 关闭伤害判定：关闭 Collider
+    /// </summary>
+    public void DisableHitbox()
+    {
+        isActive = false;
+        GetComponent<Collider>().enabled = false;
+    }
+    #endregion
 }
+

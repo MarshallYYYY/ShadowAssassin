@@ -14,6 +14,7 @@ public class EnemyChaseState : IState
 
     public void OnEnter()
     {
+        enemy.PlayAnim(EnemyAnimConstants.Run);
     }
 
     public void OnUpdate()
@@ -27,7 +28,7 @@ public class EnemyChaseState : IState
 
         float distance = enemy.DistanceToPlayer();
 
-        // 进入攻击范围
+        // 进入攻击范围进行攻击
         if (distance <= enemy.AttackRange)
         {
             enemy.StateMachine.ChangeState(enemy.AttackState);

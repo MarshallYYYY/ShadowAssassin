@@ -8,7 +8,7 @@ public class VillageSceneUIManager : MonoBehaviour
 {
     private void Awake()
     {
-        Debug.LogWarning($"当前使用的是存档 {PersistentService.Instance.GetLastSelectedIndex()}");
+        Debug.Log($"当前使用的是存档 {PersistentService.Instance.GetLastSelectedIndex()}");
         GameManager.Instance.SwitchToPlayMode();
 
         InitMenu();

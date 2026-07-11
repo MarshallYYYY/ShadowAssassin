@@ -688,6 +688,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 149381606}
     - target: {fileID: 2852695741668566622, guid: 4671bb1b5742ff44c9700f354f777690, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2852695741668566622, guid: 4671bb1b5742ff44c9700f354f777690, type: 3}
       propertyPath: dialogueWindow
       value: 
       objectReference: {fileID: 3532470841289271417}

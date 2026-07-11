@@ -1,12 +1,15 @@
 using UnityEngine;
 
 /// <summary>
-/// 敌人攻击状态：停止移动，对 Player 造成伤害，有冷却时间。
-/// TODO: 目前用 Debug.Log 代替攻击动画，后续替换为实际动画播放
+/// 敌人攻击状态：停止移动，随机播放 HorizontalAttack 或 DownwardAttack，对 Player 造成伤害，有冷却时间。
+/// 攻击动画播完后回到追击状态。
 /// </summary>
 public class EnemyAttackState : IState
 {
     private readonly EnemyController enemy;
+    private bool isAttacking;
+    private float attackTimer;
+    private float attackDuration;
 
     public EnemyAttackState(EnemyController enemy)
     {
@@ -15,6 +18,8 @@ public class EnemyAttackState : IState
 
     public void OnEnter()
     {
+        isAttacking = false;
+        attackTimer = 0f;
     }
 
     public void OnUpdate()
@@ -28,6 +33,21 @@ public class EnemyAttackState : IState
 
         float distance = enemy.DistanceToPlayer();
 
+        // 朝向 Player
+        enemy.FaceTarget(player.position);
+
+        // 正在播放攻击动画 → 用计时器等动画播完后切回追击
+        if (isAttacking)
+        {
+            attackTimer += Time.deltaTime;
+            if (attackTimer >= attackDuration)
+            {
+                isAttacking = false;
+                enemy.StateMachine.ChangeState(enemy.ChaseState);
+            }
+            return;
+        }
+
         // Player 离开攻击范围 → 追击
         if (distance > enemy.AttackRange)
         {
@@ -35,18 +55,21 @@ public class EnemyAttackState : IState
             return;
         }
 
-        // 朝向 Player
-        enemy.FaceTarget(player.position);
-
         // 攻击冷却结束 → 执行攻击
         if (!enemy.IsInAttackCooldown)
         {
-            // TODO: 替换为实际攻击动画
-            Debug.Log($"[Enemy] 攻击 Player，造成 {enemy.AttackDamage} 点伤害");
+            // 随机选择攻击动画
+            string attackAnim = Random.value < 0.5f
+                ? EnemyAnimConstants.HorizontalAttack
+                : EnemyAnimConstants.DownwardAttack;
+            enemy.PlayAnim(attackAnim);
+            isAttacking = true;
+            attackTimer = 0f;
+            attackDuration = 1.5f; // 攻击动画时长（Approximate）
 
             // 对 Player 造成伤害
             PlayerController playerController = player.GetComponent<PlayerController>();
-            playerController.TakeDamage(enemy.AttackDamage);
+            playerController?.TakeDamage(enemy.AttackDamage);
 
             enemy.RecordAttack();
         }
@@ -54,5 +77,6 @@ public class EnemyAttackState : IState
 
     public void OnExit()
     {
+        isAttacking = false;
     }
 }

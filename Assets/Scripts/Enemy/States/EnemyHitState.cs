@@ -1,13 +1,13 @@
 using UnityEngine;
 
 /// <summary>
-/// 敌人受击状态：短暂硬直后恢复，若 Player 在侦测范围内则追击，否则巡逻。
+/// 敌人受击状态：播放受击动画，用计时器等动画播完后恢复。
 /// </summary>
 public class EnemyHitState : IState
 {
     private readonly EnemyController enemy;
     private float hitTimer;
-    private float hitDuration = 0.3f;
+    private float hitDuration = 1.0f;
 
     public EnemyHitState(EnemyController enemy)
     {
@@ -17,7 +17,7 @@ public class EnemyHitState : IState
     public void OnEnter()
     {
         hitTimer = 0f;
-        // TODO: 播放受击动画/闪烁效果
+        enemy.PlayAnim(EnemyAnimConstants.GetHit);
     }
 
     public void OnUpdate()
@@ -26,7 +26,7 @@ public class EnemyHitState : IState
 
         if (hitTimer >= hitDuration)
         {
-            // 硬直结束后：Player 在侦测范围内 → 追击，否则 → 巡逻
+            // 受击动画播完：Player 在侦测范围内 → 追击，否则 → 巡逻
             if (enemy.DistanceToPlayer() <= enemy.DetectRange)
             {
                 enemy.StateMachine.ChangeState(enemy.ChaseState);

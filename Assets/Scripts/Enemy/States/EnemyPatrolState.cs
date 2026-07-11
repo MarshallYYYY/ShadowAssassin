@@ -20,6 +20,7 @@ public class EnemyPatrolState : IState
         PickNewPatrolTarget();
         isWaiting = false;
         waitTimer = 0f;
+        enemy.PlayAnim(EnemyAnimConstants.Walk);
     }
 
     public void OnUpdate()
@@ -38,6 +39,7 @@ public class EnemyPatrolState : IState
             {
                 PickNewPatrolTarget();
                 isWaiting = false;
+                enemy.PlayAnim(EnemyAnimConstants.Walk);
             }
         }
         else

@@ -19,8 +19,6 @@ public class PlayerHitState : IState
     public void OnEnter()
     {
         hitTimer = 0f;
-        // 关闭武器判定
-        player.DisableWeaponHitbox();
     }
 
     public void OnUpdate()
@@ -29,7 +27,7 @@ public class PlayerHitState : IState
 
         if (hitTimer >= hitDuration)
         {
-            player.StateMachine.ChangeState(player.IdleState);
+            player.StateMachine.ChangeState(player.LocomotionState);
         }
     }
 

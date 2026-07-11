@@ -16,14 +16,13 @@ public class PlayerController : MonoBehaviour
     #region 组件
     private CharacterController characterController;
     private Animator animator;
-    private AfterImageEffect afterImage;
     private ThirdPersonControl inputActions;
+    private AfterImageEffect afterImage;
     #endregion
 
     #region 状态机
     private StateMachine<PlayerController> stateMachine;
-    private PlayerIdleState idleState;
-    private PlayerMoveState moveState;
+    private PlayerLocomotionState locomotionState;
     private PlayerAttackState attackState;
     private PlayerRollState rollState;
     private PlayerAvoidState avoidState;
@@ -31,8 +30,7 @@ public class PlayerController : MonoBehaviour
     private PlayerDeadState deadState;
     #endregion
 
-    #region 外部赋值
-    [SerializeField] private Transform lockTarget;
+    #region 外部赋值 SerializeField
     [SerializeField] private AttackAnimDataBaseSO attackAnimDataBaseSO;
     [SerializeField] private WeaponHitbox weaponHitbox;
 
@@ -46,25 +44,21 @@ public class PlayerController : MonoBehaviour
 
     #region 血量
     [Header("血量")]
-    [SerializeField] private HealthBarController playerHealthBar;
+    [SerializeField] private PlayerHealthBar playerHealthBar;
     #endregion
-    #endregion
-
-    #region 可在Inspector面板调节
-    [Header("调节测试")]
-    [SerializeField] private float rotationSmoothTime = 0.1f;
-    [SerializeField] private float moveSpeed = 5f;
     #endregion
 
     #region 输入数据
     private Vector2 moveInput;
     private bool isLock = false;
-    private AttackType attackType = AttackType.None;
+    private Transform lockTarget;
+    private PlayerAttackType attackType = PlayerAttackType.None;
     private bool isRollPressed = false;
     private bool isAvoidPressed = false;
     #endregion
 
     #region 动作数据
+    private float moveSpeed = 5f;
     /// <summary>
     /// 轻攻击连击索引（0 = 无连击，1~N = 已打出第N击）
     /// </summary>
@@ -85,8 +79,6 @@ public class PlayerController : MonoBehaviour
 
     #region 血量数据
     private float currentHP;
-    public float CurrentHP => currentHP;
-    public bool IsDead => currentHP <= 0f;
     #endregion
 
     #region 事件
@@ -106,7 +98,7 @@ public class PlayerController : MonoBehaviour
     #region 输入数据
     public Vector2 MoveInput => moveInput;
     public bool IsLock => isLock;
-    public AttackType AttackType { get => attackType; set => attackType = value; }
+    public PlayerAttackType AttackType { get => attackType; set => attackType = value; }
     public bool IsRollPressed { get => isRollPressed; set => isRollPressed = value; }
     public bool IsAvoidPressed { get => isAvoidPressed; set => isAvoidPressed = value; }
     #endregion
@@ -114,8 +106,6 @@ public class PlayerController : MonoBehaviour
     #region 配置
     public Transform LockTarget => lockTarget;
     public AttackAnimDataBaseSO AttackAnimDataBaseSO => attackAnimDataBaseSO;
-    public float MoveSpeed => moveSpeed;
-    public float RotationSmoothTime => rotationSmoothTime;
     #endregion
 
     #region UI
@@ -126,19 +116,17 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region 动作数据
+    public float MoveSpeed { get => moveSpeed; }
     public int ComboIndex { get => comboIndex; set => comboIndex = value; }
     public float CurrentAnimTime { get => currentAnimTime; set => currentAnimTime = value; }
     public float CurrentActionTotalTime { get => currentActionTotalTime; set => currentActionTotalTime = value; }
     public AttackAnimSO CurrentAttackAnimSO { get => currentAttackAnimSO; set => currentAttackAnimSO = value; }
     #endregion
 
-    #region 状态机
+    #region 状态机 和 状态实例
     public StateMachine<PlayerController> StateMachine => stateMachine;
-    #endregion
 
-    #region 状态实例
-    public PlayerIdleState IdleState => idleState;
-    public PlayerMoveState MoveState => moveState;
+    public PlayerLocomotionState LocomotionState => locomotionState;
     public PlayerAttackState AttackState => attackState;
     public PlayerRollState RollState => rollState;
     public PlayerAvoidState AvoidState => avoidState;
@@ -146,6 +134,7 @@ public class PlayerController : MonoBehaviour
     public PlayerDeadState DeadState => deadState;
     #endregion
     #endregion
+
 
     #region 生命周期
     void Awake()
@@ -170,25 +159,25 @@ public class PlayerController : MonoBehaviour
 
         // 初始化血量
         currentHP = PersistentService.Instance.GetPlayerData().HP;
-        playerHealthBar?.SetHP(currentHP, PersistentService.Instance.GetPlayerData().HP);
+        // 保留 ? 是因为在 VillageScene 中没有血条UI
+        playerHealthBar?.SetHP(currentHP);
 
         // 初始化武器
         if (weaponHitbox != null)
         {
-            weaponHitbox.Initialize(this);
+            weaponHitbox.Init(this);
         }
 
         // 初始化状态机
         stateMachine = new StateMachine<PlayerController>(this);
-        idleState = new PlayerIdleState(this);
-        moveState = new PlayerMoveState(this);
+        locomotionState = new PlayerLocomotionState(this);
         attackState = new PlayerAttackState(this);
         rollState = new PlayerRollState(this);
         avoidState = new PlayerAvoidState(this);
         hitState = new PlayerHitState(this);
         deadState = new PlayerDeadState(this);
 
-        stateMachine.ChangeState(idleState);
+        stateMachine.ChangeState(locomotionState);
     }
 
     void Update()
@@ -218,7 +207,22 @@ public class PlayerController : MonoBehaviour
     }
     private void OnLockTarget(InputAction.CallbackContext context)
     {
-        isLock = !isLock;
+        if (isLock)
+        {
+            // 取消锁定
+            isLock = false;
+            lockTarget = null;
+        }
+        else
+        {
+            // 锁定最近的 Enemy
+            EnemyController nearestEnemy = FindNearestEnemy();
+            if (nearestEnemy != null)
+            {
+                lockTarget = nearestEnemy.transform;
+                isLock = true;
+            }
+        }
     }
     private void OnRoll(InputAction.CallbackContext context)
     {
@@ -230,11 +234,11 @@ public class PlayerController : MonoBehaviour
     }
     private void OnLightAttack(InputAction.CallbackContext context)
     {
-        attackType = AttackType.Light;
+        attackType = PlayerAttackType.Light;
     }
     private void OnHeavyAttack(InputAction.CallbackContext context)
     {
-        attackType = AttackType.Heavy;
+        attackType = PlayerAttackType.Heavy;
     }
     #endregion
 
@@ -251,12 +255,12 @@ public class PlayerController : MonoBehaviour
     /// <summary>
     /// 播放攻击动画并更新连击 UI
     /// </summary>
-    public void PlayAttack(int index, AttackType type)
+    public void PlayAttack(int index, PlayerAttackType type)
     {
         SetAnimatorBeforeAction();
         AnimationClip clip;
 
-        if (type == AttackType.Light)
+        if (type == PlayerAttackType.Light)
         {
             // 轻攻击：播放第 index 击，索引推进
             AttackAnimSO attackAnimSO = attackAnimDataBaseSO.LightAttackAnims[index];
@@ -268,7 +272,8 @@ public class PlayerController : MonoBehaviour
             comboSlider.gameObject.SetActive(true);
 
             ClearSeparators();
-            currentActionTotalTime = attackAnimSO.Length;
+            // currentActionTotalTime = attackAnimSO.Length;
+            currentActionTotalTime = attackAnimSO.Clip.length;
             CreateSeparator(currentActionTotalTime, attackAnimSO.EnterHitTime);
             CreateSeparator(currentActionTotalTime, attackAnimSO.EnterFollowThroughTime);
 
@@ -321,21 +326,13 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void TakeDamage(float damage)
     {
-        if (IsDead)
+        if (currentHP <= 0f)
             return;
 
         currentHP -= damage;
         currentHP = Mathf.Max(currentHP, 0f);
-        playerHealthBar?.SetHP(currentHP, PersistentService.Instance.GetPlayerData().HP);
-
-        if (currentHP <= 0f)
-        {
-            stateMachine.ChangeState(deadState);
-        }
-        else
-        {
-            stateMachine.ChangeState(hitState);
-        }
+        playerHealthBar.SetHP(currentHP);
+        stateMachine.ChangeState(currentHP <= 0f ? deadState : hitState);
     }
 
     /// <summary>
@@ -344,6 +341,40 @@ public class PlayerController : MonoBehaviour
     public void OnHitEnemy(EnemyController enemy)
     {
         OnHitEnemyEvent?.Invoke(enemy);
+    }
+
+    /// <summary>
+    /// 取消锁定，清空锁定目标
+    /// </summary>
+    public void ClearLock()
+    {
+        isLock = false;
+        lockTarget = null;
+    }
+
+    /// <summary>
+    /// 查找最近的存活 Enemy
+    /// </summary>
+    private EnemyController FindNearestEnemy()
+    {
+        EnemyController[] enemies = UnityEngine.Object.FindObjectsOfType<EnemyController>();
+        EnemyController nearest = null;
+        float nearestSqrDist = float.MaxValue;
+
+        foreach (EnemyController enemy in enemies)
+        {
+            if (enemy.IsDead)
+                continue;
+
+            float sqrDist = (enemy.transform.position - transform.position).sqrMagnitude;
+            if (sqrDist < nearestSqrDist)
+            {
+                nearestSqrDist = sqrDist;
+                nearest = enemy;
+            }
+        }
+
+        return nearest;
     }
     #endregion
 

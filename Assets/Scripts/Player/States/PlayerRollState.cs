@@ -29,7 +29,7 @@ public class PlayerRollState : IState
         // 翻滚动画依赖 Animator 的 applyRootMotion 继续播放
         if (player.CurrentAnimTime >= player.CurrentActionTotalTime)
         {
-            player.StateMachine.ChangeState(player.IdleState);
+            player.StateMachine.ChangeState(player.LocomotionState);
         }
     }
 
