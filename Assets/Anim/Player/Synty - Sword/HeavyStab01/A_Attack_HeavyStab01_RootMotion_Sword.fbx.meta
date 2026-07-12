@@ -33,7 +33,7 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: A_Attack_HeavyStab01_RootMotion_Sword
+      name: StabAttack
       takeName: A_Attack_HeavyStab01_RootMotion_Sword
       internalID: -367862208446106120
       firstFrame: 1

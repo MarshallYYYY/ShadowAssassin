@@ -2,7 +2,6 @@ using UnityEngine;
 
 /// <summary>
 /// 玩家翻滚状态：播放翻滚动画。
-/// TODO: 目前未设置 currentActionTotalTime，Roll 结束后依赖 Animator 的 Exit Time 兜底，后续需补上 Roll clip 时长。
 /// </summary>
 public class PlayerRollState : IState
 {
@@ -15,7 +14,7 @@ public class PlayerRollState : IState
 
     public void OnEnter()
     {
-        player.SetAnimatorBeforeAction();
+        // 不清除 AxisX/AxisY，保留方向信息让翻滚混合树播放对应方向的动画
         player.Animator.SetTrigger(AnimatorConstants.Roll);
         player.CurrentActionTotalTime = AnimatorConstants.RollAnimTotalTime;
         player.CurrentAnimTime = 0;
@@ -25,8 +24,6 @@ public class PlayerRollState : IState
     {
         player.CurrentAnimTime += Time.deltaTime;
 
-        // currentActionTotalTime == 0，下一帧即满足条件，切回 Idle
-        // 翻滚动画依赖 Animator 的 applyRootMotion 继续播放
         if (player.CurrentAnimTime >= player.CurrentActionTotalTime)
         {
             player.StateMachine.ChangeState(player.LocomotionState);

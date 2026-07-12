@@ -668,10 +668,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1938759504332328695, guid: 4671bb1b5742ff44c9700f354f777690, type: 3}
-      propertyPath: lockTarget
-      value: 
-      objectReference: {fileID: 1947825768}
-    - target: {fileID: 1938759504332328695, guid: 4671bb1b5742ff44c9700f354f777690, type: 3}
       propertyPath: separators
       value: 
       objectReference: {fileID: 1554790409}
@@ -687,10 +683,6 @@ PrefabInstance:
       propertyPath: separatorTemplate
       value: 
       objectReference: {fileID: 149381606}
-    - target: {fileID: 2852695741668566622, guid: 4671bb1b5742ff44c9700f354f777690, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 2852695741668566622, guid: 4671bb1b5742ff44c9700f354f777690, type: 3}
       propertyPath: dialogueWindow
       value: 

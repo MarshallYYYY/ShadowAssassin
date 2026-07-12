@@ -8,8 +8,8 @@ using UnityEngine;
 public class PlayerHealthBar : MonoBehaviour
 {
     #region 外部赋值 SerializeField
-    [SerializeField] private RectTransform delayRect;
     [SerializeField] private RectTransform fillRect;
+    [SerializeField] private RectTransform delayRect;
     #endregion
 
     #region 常量
@@ -24,7 +24,7 @@ public class PlayerHealthBar : MonoBehaviour
     #region 生命周期
     void Awake()
     {
-        maxHP = PersistentService.Instance.GetPlayerHP();
+        maxHP = PersistentService.Instance.GetPlayerMaxHP();
     }
     void OnDestroy()
     {

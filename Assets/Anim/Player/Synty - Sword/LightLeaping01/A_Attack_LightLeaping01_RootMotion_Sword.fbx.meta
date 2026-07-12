@@ -581,7 +581,7 @@ ModelImporter:
       maskSource: {fileID: 31900000, guid: ebc8800d7aef22a4aa95591cd452157d, type: 2}
       additiveReferencePoseFrame: 1
     - serializedVersion: 16
-      name: A_Attack_LightLeaping01_RootMotion_Sword (CutRun)
+      name: LeapingAttack
       takeName: A_Attack_LightLeaping01_RootMotion_Sword
       internalID: -3331126883731354091
       firstFrame: 11

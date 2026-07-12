@@ -17,8 +17,8 @@ public class EnemyHealthBar : MonoBehaviour
 
     #region SerializeField
     [SerializeField] private CanvasGroup canvasGroup;
-    [SerializeField] private RectTransform fillRect;
     [SerializeField] private RectTransform delayRect;
+    [SerializeField] private RectTransform fillRect;
     #endregion
 
     #region 常量
@@ -42,6 +42,16 @@ public class EnemyHealthBar : MonoBehaviour
 
     #region 公共方法
     /// <summary>
+    /// 隐藏血条（对象池初始化和回收时调用）
+    /// </summary>
+    public void HideBar()
+    {
+        if (lastShownBar == this)
+            lastShownBar = null;
+
+        Hide();
+    }
+    /// <summary>
     /// 设置血量：前景即时更新，延迟血条平滑追赶
     /// </summary>
     public void SetHP(float current, float max)
@@ -62,7 +72,7 @@ public class EnemyHealthBar : MonoBehaviour
     }
 
     /// <summary>
-    /// 被攻击时调用：隐藏上一个敌人的血条，显示当前敌人的血条
+    /// 被攻击时调用：隐藏上一个受击敌人的血条，显示当前受击敌人的血条
     /// </summary>
     public void OnHit()
     {
@@ -70,7 +80,9 @@ public class EnemyHealthBar : MonoBehaviour
             lastShownBar.Hide();
 
         lastShownBar = this;
-        Show();
+
+        gameObject.SetActive(true);
+        canvasGroup.alpha = 1f;
     }
 
     /// <summary>
@@ -81,47 +93,21 @@ public class EnemyHealthBar : MonoBehaviour
         if (lastShownBar == this)
             lastShownBar = null;
 
-        Flash();
-    }
+        flashTween?.Kill();
 
-    /// <summary>
-    /// 隐藏血条（对象池回收时调用）
-    /// </summary>
-    public void HideBar()
-    {
-        if (lastShownBar == this)
-            lastShownBar = null;
-
-        Hide();
+        // 闪烁：alpha 在 0 和 1 之间循环 FlashCount 次
+        canvasGroup.DOFade(0f, FlashInterval)
+            .SetLoops(FlashCount * 2, LoopType.Yoyo)
+            .OnComplete(() => Hide());
     }
     #endregion
 
     #region 内部方法
-    private void Show()
-    {
-        gameObject.SetActive(true);
-        canvasGroup.alpha = 1f;
-    }
-
     private void Hide()
     {
         flashTween?.Kill();
         canvasGroup.alpha = 0f;
         gameObject.SetActive(false);
-    }
-
-    private void Flash()
-    {
-        flashTween?.Kill();
-
-        // 闪烁：alpha 在 0 和 1 之间循环 flashCount 次
-        flashTween = DOTween.To(
-            () => canvasGroup.alpha,
-            x => canvasGroup.alpha = x,
-            0f,
-            FlashInterval
-        ).SetLoops(FlashCount * 2, LoopType.Yoyo)
-         .OnComplete(() => Hide());
     }
     #endregion
 }

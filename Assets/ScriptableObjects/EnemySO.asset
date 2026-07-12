@@ -19,6 +19,6 @@ MonoBehaviour:
   DetectRange: 8
   AttackRange: 1.5
   AttackCooldown: 1.5
-  AttackDamage: 10
+  AttackDamage: 5
   PatrolRadius: 5
   PatrolWaitTime: 2

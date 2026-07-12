@@ -7,7 +7,7 @@ using UnityEngine;
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(CapsuleCollider))]
-public class EnemyController : MonoBehaviour
+public class EnemyController : MonoBehaviour, IStateMachineOwner
 {
     #region 组件
     private Animator animator;
@@ -263,6 +263,14 @@ public class EnemyController : MonoBehaviour
     public void PlayAnim(string stateName)
     {
         animator.CrossFade(stateName, 0f);
+    }
+
+    /// <summary>
+    /// 清除一次性输入标志（状态切换时由 StateMachine 自动调用）
+    /// </summary>
+    public void ClearOneShotInputs()
+    {
+        // Enemy 目前没有一次性输入，预留接口
     }
     #endregion
 }

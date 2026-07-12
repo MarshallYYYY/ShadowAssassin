@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -23,11 +24,10 @@ public class PlayerAttackState : IState
     {
         isHitboxActive = false;
 
-        // 此时从 Idle/Move 进入，ComboIndex == 0，表示新攻击
         if (player.AttackType == PlayerAttackType.None)
             return;
 
-        // 如果处于 Move 状态 且 点击了重攻击键，则重攻击播放的是 重攻击 - 跳跃斩击 动作
+        // 如果处于 往前奔跑的状态 且 点击了重攻击键，则重攻击播放的是 重攻击 - 跳跃斩击 动作
         if (player.Animator.GetFloat(AnimatorConstants.AxisY) >= 0.9f && player.AttackType == PlayerAttackType.Heavy)
         {
             player.PlayAttack(1, player.AttackType);
@@ -47,11 +47,12 @@ public class PlayerAttackState : IState
         player.CurrentAnimTime += Time.deltaTime;
         player.ComboSlider.value = player.CurrentAnimTime;
 
-        // 2. 武器判定窗口：EnterHitTime ~ EnterFollowThroughTime
-        if (player.CurrentAttackAnimSO != null)
+        // 2. 武器伤害判定窗口：EnterHitTime --- EnterFollowThroughTime
+        AttackAnimSO currentAttackAnimSO = player.CurrentAttackAnimSO;
+        if (currentAttackAnimSO != null)
         {
-            float enterHitTime = player.CurrentAttackAnimSO.EnterHitTime;
-            float enterFollowThroughTime = player.CurrentAttackAnimSO.EnterFollowThroughTime;
+            float enterHitTime = currentAttackAnimSO.EnterHitTime;
+            float enterFollowThroughTime = currentAttackAnimSO.EnterFollowThroughTime;
 
             // 如果伤害盒子未激活并且攻击动画处于伤害窗口
             if (!isHitboxActive && enterHitTime <= player.CurrentAnimTime && player.CurrentAnimTime < enterFollowThroughTime)
@@ -68,32 +69,39 @@ public class PlayerAttackState : IState
         }
 
         // 3. 处理连击输入
+        List<AttackAnimSO> lightAttackAnims = player.AttackAnimDataBaseSO.LightAttackAnims;
         if (player.AttackType != PlayerAttackType.None
             && player.ComboIndex > 0
-            && player.ComboIndex < player.AttackAnimDataBaseSO.LightAttackAnims.Count)
+            && player.ComboIndex < lightAttackAnims.Count)
         {
             // 轻攻击连击（2-5） 和 重攻击 - 转身突刺：仅在前四段轻攻击连击的收尾阶段可触发
-            int currentIndex = player.ComboIndex - 1;
-            bool isCanAttack = player.CurrentAnimTime >= player.AttackAnimDataBaseSO.LightAttackAnims[currentIndex].EnterFollowThroughTime;
+            // 当前正在播放的攻击动画的索引
+            int currentAttackAnimIndex = player.ComboIndex - 1;
+            bool isCanAttack = player.CurrentAnimTime >= lightAttackAnims[currentAttackAnimIndex].EnterFollowThroughTime;
             if (isCanAttack)
             {
+                // 这个判定是多余的，删去
                 // 切换连击前先关闭武器判定
-                if (isHitboxActive)
-                {
-                    player.DisableWeaponHitbox();
-                    isHitboxActive = false;
-                }
+                // if (isHitboxActive)
+                // {
+                //     player.DisableWeaponHitbox();
+                //     isHitboxActive = false;
+                // }
 
                 // 轻攻击走连击索引；重攻击打第 3 击（派生技：转身突刺）
-                int index = (player.AttackType == PlayerAttackType.Light) ? player.ComboIndex : 2;
-                player.PlayAttack(index, player.AttackType);
+                // 下一个要播放的攻击动画的索引
+                int nextAttackAnimIndex = (player.AttackType == PlayerAttackType.Light) ? player.ComboIndex : 2;
+                player.PlayAttack(nextAttackAnimIndex, player.AttackType);
             }
             player.AttackType = PlayerAttackType.None;
         }
 
-        // 4. 动画播完 → 切回 Idle
+        // 4. 动画播完 → 切回 LocomotionState
         if (player.CurrentAnimTime >= player.CurrentActionTotalTime)
         {
+            // 重攻击（ComboIndex == 0）的 attackType 不在连击逻辑中消费，需要在此清零
+            // 防止切回 LocomotionState 后残留的 attackType 自动触发新攻击
+            player.AttackType = PlayerAttackType.None;
             player.StateMachine.ChangeState(player.LocomotionState);
         }
     }
@@ -106,9 +114,7 @@ public class PlayerAttackState : IState
         // 清理攻击数据
         player.ComboIndex = 0;
         player.CurrentAnimTime = 0;
-        // 攻击期间按下的翻滚/闪避输入不保留到攻击结束后
-        player.IsRollPressed = false;
-        player.IsAvoidPressed = false;
+
         player.ComboSlider.gameObject.SetActive(false);
         player.ClearSeparators();
     }

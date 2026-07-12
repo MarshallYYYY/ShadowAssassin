@@ -475,24 +475,8 @@ public class YooAssetManager : MonoBehaviour
         // UnityEngine.PhysicsModule
         // 防止 IL2CPP 整体裁剪程序集
         _ = typeof(BoxCollider);
-
-        /*
-        // 创建一个假 GameObject 来调用 set_enabled
-        // IL2CPP 扫描到此方法的 IL 中有 Collider.set_enabled 的调用 → 保留
-        var go = new GameObject();
-        var bc = go.AddComponent<BoxCollider>();
-        bc.enabled = false;          // ← 保留 Collider.set_enabled
-
-        var cc = go.AddComponent<CapsuleCollider>();
-        cc.enabled = false;
-
-        var ch = go.AddComponent<CharacterController>();
-        ch.enabled = false;
-
-        var rb = go.AddComponent<Rigidbody>();
-        rb.isKinematic = true;       // ← 保留 Rigidbody.set_isKinematic
-        DestroyImmediate(go);
-        */
+        _ = typeof(MeshCollider);
+        _ = typeof(Collider);
     }
 }
 public struct DownloadDataInfo

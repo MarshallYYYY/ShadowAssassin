@@ -11,7 +11,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(CapsuleCollider))]
 [RequireComponent(typeof(AfterImageEffect))]
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IStateMachineOwner
 {
     #region 组件
     private CharacterController characterController;
@@ -20,7 +20,7 @@ public class PlayerController : MonoBehaviour
     private AfterImageEffect afterImage;
     #endregion
 
-    #region 状态机
+    #region 状态机 和 状态
     private StateMachine<PlayerController> stateMachine;
     private PlayerLocomotionState locomotionState;
     private PlayerAttackState attackState;
@@ -42,8 +42,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Text currentComboText;
     #endregion
 
-    #region 血量
-    [Header("血量")]
+    #region 血条UI
+    [Header("血条UI")]
     [SerializeField] private PlayerHealthBar playerHealthBar;
     #endregion
     #endregion
@@ -58,6 +58,7 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region 动作数据
+    // TODO 将移动速度放入SO中
     private float moveSpeed = 5f;
     /// <summary>
     /// 轻攻击连击索引（0 = 无连击，1~N = 已打出第N击）
@@ -70,7 +71,7 @@ public class PlayerController : MonoBehaviour
     /// <summary>
     /// 当前动作动画的总时长
     /// </summary>
-    private float currentActionTotalTime = 0;
+    private float currentAnimTotalTime = 0;
     /// <summary>
     /// 当前攻击的 AttackAnimSO，用于获取判定时间窗口和伤害值
     /// </summary>
@@ -79,13 +80,6 @@ public class PlayerController : MonoBehaviour
 
     #region 血量数据
     private float currentHP;
-    #endregion
-
-    #region 事件
-    /// <summary>
-    /// 命中敌人时触发，参数为被命中的敌人
-    /// </summary>
-    public event Action<EnemyController> OnHitEnemyEvent;
     #endregion
 
     #region 公开属性 — 供 States 访问
@@ -108,18 +102,15 @@ public class PlayerController : MonoBehaviour
     public AttackAnimDataBaseSO AttackAnimDataBaseSO => attackAnimDataBaseSO;
     #endregion
 
-    #region UI
+    #region UI - ComboSlider
     public Slider ComboSlider => comboSlider;
-    public RectTransform SeparatorTemplate => separatorTemplate;
-    public RectTransform Separators => separators;
-    public Text CurrentComboText => currentComboText;
     #endregion
 
     #region 动作数据
     public float MoveSpeed { get => moveSpeed; }
     public int ComboIndex { get => comboIndex; set => comboIndex = value; }
     public float CurrentAnimTime { get => currentAnimTime; set => currentAnimTime = value; }
-    public float CurrentActionTotalTime { get => currentActionTotalTime; set => currentActionTotalTime = value; }
+    public float CurrentActionTotalTime { get => currentAnimTotalTime; set => currentAnimTotalTime = value; }
     public AttackAnimSO CurrentAttackAnimSO { get => currentAttackAnimSO; set => currentAttackAnimSO = value; }
     #endregion
 
@@ -130,8 +121,8 @@ public class PlayerController : MonoBehaviour
     public PlayerAttackState AttackState => attackState;
     public PlayerRollState RollState => rollState;
     public PlayerAvoidState AvoidState => avoidState;
-    public PlayerHitState HitState => hitState;
-    public PlayerDeadState DeadState => deadState;
+    // public PlayerHitState HitState => hitState;
+    // public PlayerDeadState DeadState => deadState;
     #endregion
     #endregion
 
@@ -158,7 +149,7 @@ public class PlayerController : MonoBehaviour
         separatorTemplate.gameObject.SetActive(false);
 
         // 初始化血量
-        currentHP = PersistentService.Instance.GetPlayerData().HP;
+        currentHP = PersistentService.Instance.GetPlayerMaxHP();
         // 保留 ? 是因为在 VillageScene 中没有血条UI
         playerHealthBar?.SetHP(currentHP);
 
@@ -224,6 +215,30 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    /// <summary>
+    /// 查找最近的存活 Enemy
+    /// </summary>
+    private EnemyController FindNearestEnemy()
+    {
+        EnemyController[] enemies = FindObjectsOfType<EnemyController>();
+        EnemyController nearestEnemy = null;
+        float nearestSqrDist = float.MaxValue;
+
+        foreach (EnemyController enemy in enemies)
+        {
+            if (enemy.IsDead)
+                continue;
+
+            float sqrDist = (enemy.transform.position - transform.position).sqrMagnitude;
+            if (sqrDist < nearestSqrDist)
+            {
+                nearestSqrDist = sqrDist;
+                nearestEnemy = enemy;
+            }
+        }
+
+        return nearestEnemy;
+    }
     private void OnRoll(InputAction.CallbackContext context)
     {
         isRollPressed = true;
@@ -242,22 +257,18 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
 
-    #region 辅助方法 — 供 States 调用
-    /// <summary>
-    /// 执行攻击动作前的通用设置：动画参数归零
-    /// </summary>
-    public void SetAnimatorBeforeAction()
-    {
-        animator.SetFloat(AnimatorConstants.AxisX, 0);
-        animator.SetFloat(AnimatorConstants.AxisY, 0);
-    }
-
+    #region 公共方法 — 供 States/状态机 调用
+    #region 攻击和伤害判定
     /// <summary>
     /// 播放攻击动画并更新连击 UI
     /// </summary>
     public void PlayAttack(int index, PlayerAttackType type)
     {
-        SetAnimatorBeforeAction();
+        // 未使用FSM的版本有用，现在使用FSM好像没作用了
+        // 播放攻击动画前让其处于Idle
+        // animator.SetFloat(AnimatorConstants.AxisX, 0);
+        // animator.SetFloat(AnimatorConstants.AxisY, 0);
+
         AnimationClip clip;
 
         if (type == PlayerAttackType.Light)
@@ -272,12 +283,11 @@ public class PlayerController : MonoBehaviour
             comboSlider.gameObject.SetActive(true);
 
             ClearSeparators();
-            // currentActionTotalTime = attackAnimSO.Length;
-            currentActionTotalTime = attackAnimSO.Clip.length;
-            CreateSeparator(currentActionTotalTime, attackAnimSO.EnterHitTime);
-            CreateSeparator(currentActionTotalTime, attackAnimSO.EnterFollowThroughTime);
+            currentAnimTotalTime = clip.length;
+            CreateSeparator(currentAnimTotalTime, attackAnimSO.EnterHitTime);
+            CreateSeparator(currentAnimTotalTime, attackAnimSO.EnterFollowThroughTime);
 
-            currentComboText.text = (index + 1).ToString();
+            currentComboText.text = comboIndex.ToString();
         }
         else
         {
@@ -287,21 +297,12 @@ public class PlayerController : MonoBehaviour
             clip = attackAnimSO.Clip;
             comboIndex = 0;
             currentAttackAnimSO = attackAnimSO;
-            currentActionTotalTime = clip.length;
+            currentAnimTotalTime = clip.length;
             comboSlider.gameObject.SetActive(false);
-
-            animator.CrossFade(clip.name, 0f);
         }
         animator.CrossFade(clip.name, 0f);
         currentAnimTime = 0f;
     }
-
-    /// <summary>临时：Invoke 回调，1 秒后关闭残影效果</summary>
-    public void StopAfterImage()
-    {
-        afterImage.StopEffect();
-    }
-
     /// <summary>
     /// 启用武器伤害判定
     /// </summary>
@@ -334,15 +335,9 @@ public class PlayerController : MonoBehaviour
         playerHealthBar.SetHP(currentHP);
         stateMachine.ChangeState(currentHP <= 0f ? deadState : hitState);
     }
+    #endregion
 
-    /// <summary>
-    /// 命中敌人时由 WeaponHitbox 调用
-    /// </summary>
-    public void OnHitEnemy(EnemyController enemy)
-    {
-        OnHitEnemyEvent?.Invoke(enemy);
-    }
-
+    #region 敌人死亡后，取消锁定
     /// <summary>
     /// 取消锁定，清空锁定目标
     /// </summary>
@@ -351,34 +346,23 @@ public class PlayerController : MonoBehaviour
         isLock = false;
         lockTarget = null;
     }
-
+    #endregion
+    #region 辅助方法
     /// <summary>
-    /// 查找最近的存活 Enemy
+    /// 清除一次性输入标志（状态切换时由 StateMachine 自动调用）
+    /// 注意：attackType 不在此清除，因为它由 AttackState.OnEnter 消费后自行清零
     /// </summary>
-    private EnemyController FindNearestEnemy()
+    public void ClearOneShotInputs()
     {
-        EnemyController[] enemies = UnityEngine.Object.FindObjectsOfType<EnemyController>();
-        EnemyController nearest = null;
-        float nearestSqrDist = float.MaxValue;
-
-        foreach (EnemyController enemy in enemies)
-        {
-            if (enemy.IsDead)
-                continue;
-
-            float sqrDist = (enemy.transform.position - transform.position).sqrMagnitude;
-            if (sqrDist < nearestSqrDist)
-            {
-                nearestSqrDist = sqrDist;
-                nearest = enemy;
-            }
-        }
-
-        return nearest;
+        isRollPressed = false;
+        isAvoidPressed = false;
     }
     #endregion
 
-    #region Separator
+
+    #endregion
+
+    #region Separator：包含私有和公共方法
     private void CreateSeparator(float maxValue, float value)
     {
         comboSlider.minValue = 0;
@@ -393,7 +377,6 @@ public class PlayerController : MonoBehaviour
 
         separator.anchoredPosition = Vector2.zero;
     }
-
     public void ClearSeparators()
     {
         while (separators.childCount > 0)

@@ -11801,8 +11801,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f78695003440d864e823db3a977a3b58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  delayRect: {fileID: 851306600}
   fillRect: {fileID: 1600681942}
+  delayRect: {fileID: 851306600}
 --- !u!1001 &1991309188
 PrefabInstance:
   m_ObjectHideFlags: 0

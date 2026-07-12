@@ -6,7 +6,8 @@ using UnityEngine;
 /// 攻击判定阶段启用 Collider，通过 OnTriggerEnter 检测 Enemy 并造成伤害。
 /// 使用 HashSet 去重，同一敌人每次攻击只命中一次。
 /// </summary>
-[RequireComponent(typeof(Collider))]
+[RequireComponent(typeof(MeshCollider))]
+
 public class WeaponHitbox : MonoBehaviour
 {
     #region 数据
@@ -18,9 +19,10 @@ public class WeaponHitbox : MonoBehaviour
     #region 生命周期
     void Awake()
     {
-        Collider col = GetComponent<Collider>();
-        col.isTrigger = true;
-        col.enabled = false;
+        MeshCollider collider = GetComponent<MeshCollider>();
+        collider.isTrigger = true;
+        collider.enabled = false;
+        // collider.convex = true;
     }
 
     void OnTriggerEnter(Collider other)
@@ -33,7 +35,6 @@ public class WeaponHitbox : MonoBehaviour
 
         EnemyController enemy = other.GetComponent<EnemyController>();
         enemy.TakeDamage(currentDamage);
-        playerController.OnHitEnemy(enemy);
     }
     #endregion
 

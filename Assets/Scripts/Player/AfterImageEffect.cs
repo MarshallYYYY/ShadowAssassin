@@ -10,14 +10,14 @@ public class AfterImageEffect : MonoBehaviour
 {
     [Header("池设置")]
     [SerializeField] private int poolSize = 10;
-    // [SerializeField] private float snapshotInterval = 0.05f; // 多少秒拍一片
-    [SerializeField] private float fadeDuration = 0.5f;      // 淡出时长
+    /// <summary>
+    /// 淡出时长
+    /// </summary>
+    private const float FadeDuration = 0.5f;
 
     private SkinnedMeshRenderer[] sourceRenderers;
     private readonly List<Snapshot> pool = new();
     private int poolIndex;
-    // private float snapshotTimer;
-    // private bool isActive;
 
     private class Snapshot
     {
@@ -34,8 +34,6 @@ public class AfterImageEffect : MonoBehaviour
         sourceRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
         BuildPool();
     }
-
-    #region 池构建（仅 Awake 一次）
     private void BuildPool()
     {
         for (int i = 0; i < poolSize; i++)
@@ -69,36 +67,38 @@ public class AfterImageEffect : MonoBehaviour
             pool.Add(snap);
         }
     }
-    #endregion
 
-    #region 公共接口
+    #region 公共方法
     public void StartEffect()
     {
-        // isActive = true;
-        // snapshotTimer = 0f;
-        TakeSnapshot();
-    }
-    public void StopEffect()
-    {
-        // isActive = false;
+        Snapshot snap = pool[poolIndex];
+        poolIndex = (poolIndex + 1) % poolSize;
+
+        snap.Go.SetActive(true);
+        snap.Alpha = 1f;
+        snap.RemainingLife = FadeDuration + 0.15f;
+
+        for (int i = 0; i < sourceRenderers.Length; i++)
+        {
+            var src = sourceRenderers[i];
+            src.BakeMesh(snap.MeshFilters[i].mesh);
+
+            Transform t = src.transform;
+            snap.MeshFilters[i].transform.SetPositionAndRotation(t.position, t.rotation);
+        }
+
+        snap.MaterialPropertyBlock.SetColor("_Color", Color.white);
+        snap.MaterialPropertyBlock.SetColor("_BaseColor", Color.white);
+        for (int i = 0; i < snap.MeshRenderers.Length; i++)
+            snap.MeshRenderers[i].SetPropertyBlock(snap.MaterialPropertyBlock);
     }
     #endregion
 
     void Update()
     {
-        // if (isActive)
-        // {
-        //     snapshotTimer += Time.deltaTime;
-        //     if (snapshotTimer >= snapshotInterval)
-        //     {
-        //         snapshotTimer -= snapshotInterval;
-        //         TakeSnapshot();
-        //     }
-        // }
-
         // 淡出所有存活的快照
         float dt = Time.deltaTime;
-        float fadeSpeed = 1f / fadeDuration;
+        float fadeSpeed = 1f / FadeDuration;
         for (int i = 0; i < pool.Count; i++)
         {
             var snap = pool[i];
@@ -120,30 +120,6 @@ public class AfterImageEffect : MonoBehaviour
             for (int j = 0; j < snap.MeshRenderers.Length; j++)
                 snap.MeshRenderers[j].SetPropertyBlock(snap.MaterialPropertyBlock);
         }
-    }
-
-    private void TakeSnapshot()
-    {
-        var snap = pool[poolIndex];
-        poolIndex = (poolIndex + 1) % poolSize;
-
-        snap.Go.SetActive(true);
-        snap.Alpha = 1f;
-        snap.RemainingLife = fadeDuration + 0.15f;
-
-        for (int i = 0; i < sourceRenderers.Length; i++)
-        {
-            var src = sourceRenderers[i];
-            src.BakeMesh(snap.MeshFilters[i].mesh); // 每 0.05 秒一次
-
-            Transform t = src.transform;
-            snap.MeshFilters[i].transform.SetPositionAndRotation(t.position, t.rotation);
-        }
-
-        snap.MaterialPropertyBlock.SetColor("_Color", Color.white);
-        snap.MaterialPropertyBlock.SetColor("_BaseColor", Color.white);
-        for (int i = 0; i < snap.MeshRenderers.Length; i++)
-            snap.MeshRenderers[i].SetPropertyBlock(snap.MaterialPropertyBlock);
     }
 
     void OnDestroy()

@@ -333,7 +333,7 @@ public class PersistentService : BaseService<PersistentService>
     }
     #endregion
 
-    public float GetPlayerHP()
+    public float GetPlayerMaxHP()
     {
         return playerData.HP;
     }

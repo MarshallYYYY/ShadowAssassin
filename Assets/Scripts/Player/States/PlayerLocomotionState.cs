@@ -27,7 +27,7 @@ public class PlayerLocomotionState : IState
         // 1. 锁定目标死亡 → 自动取消锁定
         if (player.IsLock && player.LockTarget != null)
         {
-            var enemy = player.LockTarget.GetComponent<EnemyController>();
+            EnemyController enemy = player.LockTarget.GetComponent<EnemyController>();
             if (enemy != null && enemy.IsDead)
             {
                 player.ClearLock();
@@ -71,36 +71,26 @@ public class PlayerLocomotionState : IState
     #region 自由移动
     private void FreeMove()
     {
-        Vector2 move = player.MoveInput;
+        Vector2 moveInput = player.MoveInput;
 
-        if (move != Vector2.zero)
+        if (moveInput != Vector2.zero)
         {
             // 将二维输入转换为三维方向
-            Vector3 inputDir = new Vector3(move.x, 0, move.y).normalized;
+            Vector3 inputDir = new Vector3(moveInput.x, 0, moveInput.y).normalized;
 
-            // Atan2 计算输入方向角度 + 相机 Y 轴角度 = 世界坐标系下的目标朝向
-            float targetRotation = Mathf.Atan2(inputDir.x, inputDir.z) * Mathf.Rad2Deg + Camera.main.transform.eulerAngles.y;
-
-            // SmoothDampAngle 平滑旋转
-            float rotation = Mathf.SmoothDampAngle(
-                player.transform.eulerAngles.y, targetRotation, ref rotationVelocity, Constants.PlayerRotationSmoothTime);
-            player.transform.rotation = Quaternion.Euler(0, rotation, 0);
+            // 平滑旋转到目标朝向（叠加相机 Y 轴角度）
+            SmoothRotate(inputDir, ref rotationVelocity, Camera.main.transform.eulerAngles.y);
 
             // 动画参数平滑过渡到移动幅度
-            float axisY = player.Animator.GetFloat(AnimatorConstants.AxisY);
-            axisY = Mathf.MoveTowards(axisY, move.magnitude, player.MoveSpeed * Time.deltaTime);
-            player.Animator.SetFloat(AnimatorConstants.AxisY, axisY);
+            UpdateAxis(AnimatorConstants.AxisY, moveInput.magnitude);
 
             // 移动 + 重力
-            player.CharacterController.Move(player.MoveSpeed * Time.deltaTime * player.transform.forward);
-            player.CharacterController.Move(player.MoveSpeed * Time.deltaTime * Vector3.down);
+            player.CharacterController.Move(player.MoveSpeed * Time.deltaTime * (player.transform.forward + Vector3.down));
         }
         else
         {
             // 无输入：动画参数平滑回到 0（混合树自动过渡到 Idle）
-            float axisY = player.Animator.GetFloat(AnimatorConstants.AxisY);
-            axisY = Mathf.MoveTowards(axisY, 0, player.MoveSpeed * Time.deltaTime);
-            player.Animator.SetFloat(AnimatorConstants.AxisY, axisY);
+            UpdateAxis(AnimatorConstants.AxisY, 0);
         }
     }
     #endregion
@@ -111,7 +101,7 @@ public class PlayerLocomotionState : IState
         if (player.LockTarget == null)
             return;
 
-        Vector2 move = player.MoveInput;
+        Vector2 moveInput = player.MoveInput;
 
         // 1. 始终朝向锁定目标
         Vector3 dirToTarget = player.LockTarget.position - player.transform.position;
@@ -119,32 +109,45 @@ public class PlayerLocomotionState : IState
 
         if (dirToTarget.sqrMagnitude > 0.001f)
         {
-            float targetRotation = Mathf.Atan2(dirToTarget.x, dirToTarget.z) * Mathf.Rad2Deg;
-            float rotation = Mathf.SmoothDampAngle(
-                player.transform.eulerAngles.y, targetRotation, ref lockRotationVelocity, Constants.PlayerRotationSmoothTime);
-            player.transform.rotation = Quaternion.Euler(0, rotation, 0);
+            SmoothRotate(dirToTarget, ref lockRotationVelocity);
         }
 
         // 2. 八方向移动
-        if (move != Vector2.zero)
+        if (moveInput != Vector2.zero)
         {
-            Vector3 inputDir = new Vector3(move.x, 0f, move.y).normalized;
+            Vector3 inputDir = new Vector3(moveInput.x, 0f, moveInput.y).normalized;
             Vector3 moveDir = player.transform.forward * inputDir.z + player.transform.right * inputDir.x;
             moveDir = moveDir.normalized;
 
-            player.CharacterController.Move(player.MoveSpeed * Time.deltaTime * moveDir);
-            player.CharacterController.Move(player.MoveSpeed * Time.deltaTime * Vector3.down);
+            player.CharacterController.Move(player.MoveSpeed * Time.deltaTime * (moveDir + Vector3.down));
         }
 
         // 3. 动画参数：有输入时平滑到目标值，无输入时回到 0（混合树自动过渡到 Idle）
-        float axisX = player.Animator.GetFloat(AnimatorConstants.AxisX);
-        float axisY = player.Animator.GetFloat(AnimatorConstants.AxisY);
+        UpdateAxis(AnimatorConstants.AxisX, moveInput.x);
+        UpdateAxis(AnimatorConstants.AxisY, moveInput.y);
+    }
+    #endregion
 
-        axisX = Mathf.MoveTowards(axisX, move.x, Time.deltaTime * player.MoveSpeed);
-        axisY = Mathf.MoveTowards(axisY, move.y, Time.deltaTime * player.MoveSpeed);
-
-        player.Animator.SetFloat(AnimatorConstants.AxisX, axisX);
-        player.Animator.SetFloat(AnimatorConstants.AxisY, axisY);
+    #region 辅助方法
+    private const float PlayerRotationSmoothTime = 0.1f;
+    /// <summary>
+    /// 平滑旋转到指定方向（XZ 平面），可叠加额外角度（如相机 Y 轴角度）
+    /// </summary>
+    private void SmoothRotate(Vector3 direction, ref float velocity, float extraAngle = 0f)
+    {
+        float targetRotation = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + extraAngle;
+        float rotation = Mathf.SmoothDampAngle(
+            player.transform.eulerAngles.y, targetRotation, ref velocity, PlayerRotationSmoothTime);
+        player.transform.rotation = Quaternion.Euler(0, rotation, 0);
+    }
+    /// <summary>
+    /// 平滑更新指定动画参数
+    /// </summary>
+    private void UpdateAxis(string paramName, float target)
+    {
+        float value = player.Animator.GetFloat(paramName);
+        value = Mathf.MoveTowards(value, target, player.MoveSpeed * Time.deltaTime);
+        player.Animator.SetFloat(paramName, value);
     }
     #endregion
 }
