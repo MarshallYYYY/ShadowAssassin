@@ -1,8 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// 玩家死亡状态：禁用输入和移动。
-/// TODO: 目前为最小实现，后续添加死亡动画和游戏结束 UI
+/// 玩家死亡状态：Play（硬切）播放死亡动画，加载村庄场景。
 /// </summary>
 public class PlayerDeadState : IState
 {
@@ -15,13 +14,12 @@ public class PlayerDeadState : IState
 
     public void OnEnter()
     {
-        player.Animator.SetTrigger(AnimatorConstants.Dead);
+        player.Animator.Play(AnimatorConstants.DeadState);
         SceneLoadService.Instance.LoadScene(SceneLoadConstants.VillageScene);
     }
 
     public void OnUpdate()
     {
-        // 死亡状态不响应任何输入
     }
 
     public void OnExit()

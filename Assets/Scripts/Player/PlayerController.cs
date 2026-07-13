@@ -264,11 +264,6 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
     /// </summary>
     public void PlayAttack(int index, PlayerAttackType type)
     {
-        // 未使用FSM的版本有用，现在使用FSM好像没作用了
-        // 播放攻击动画前让其处于Idle
-        // animator.SetFloat(AnimatorConstants.AxisX, 0);
-        // animator.SetFloat(AnimatorConstants.AxisY, 0);
-
         AnimationClip clip;
 
         if (type == PlayerAttackType.Light)
@@ -300,7 +295,8 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
             currentAnimTotalTime = clip.length;
             comboSlider.gameObject.SetActive(false);
         }
-        animator.CrossFade(clip.name, 0f);
+        // animator.CrossFadeInFixedTime(clip.name, 0f);
+        animator.CrossFadeInFixedTime(clip.name, AnimatorConstants.AttackFadeDuration);
         currentAnimTime = 0f;
     }
     /// <summary>

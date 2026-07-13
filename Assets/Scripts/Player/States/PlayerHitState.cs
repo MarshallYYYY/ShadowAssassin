@@ -1,8 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// 玩家受击状态：短暂硬直后恢复。
-/// TODO: 目前为最小实现，后续添加受击动画和击退效果
+/// 玩家受击状态：Play（硬切）播放受击动画，动画播完后切回 LocomotionState。
 /// </summary>
 public class PlayerHitState : IState
 {
@@ -15,7 +14,7 @@ public class PlayerHitState : IState
 
     public void OnEnter()
     {
-        player.Animator.SetTrigger(AnimatorConstants.Hit);
+        player.Animator.Play(AnimatorConstants.HitState);
         player.CurrentAnimTotalTime = AnimatorConstants.HitAnimTotalTime;
         player.CurrentAnimTime = 0;
     }

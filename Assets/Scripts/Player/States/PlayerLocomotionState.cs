@@ -20,6 +20,7 @@ public class PlayerLocomotionState : IState
 
     public void OnEnter()
     {
+        player.Animator.CrossFadeInFixedTime(AnimatorConstants.LocomotionState, AnimatorConstants.LocomotionFadeDuration);
     }
 
     public void OnUpdate()

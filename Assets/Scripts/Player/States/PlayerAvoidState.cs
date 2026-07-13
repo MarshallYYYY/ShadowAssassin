@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// 玩家闪避状态：播放闪避动画并触发残影效果。
+/// 玩家闪避状态：CrossFade 播放闪避动画并触发残影效果，动画播完后切回 LocomotionState。
 /// </summary>
 public class PlayerAvoidState : IState
 {
@@ -14,8 +14,7 @@ public class PlayerAvoidState : IState
 
     public void OnEnter()
     {
-        // 不清除 AxisX/AxisY，保留方向信息让闪避混合树播放对应方向的动画
-        player.Animator.SetTrigger(AnimatorConstants.Avoid);
+        player.Animator.CrossFadeInFixedTime(AnimatorConstants.AvoidState, AnimatorConstants.AvoidFadeDuration);
         player.CurrentAnimTotalTime = AnimatorConstants.AvoidAnimTotalTime;
         player.CurrentAnimTime = 0;
 
@@ -26,7 +25,7 @@ public class PlayerAvoidState : IState
     {
         player.CurrentAnimTime += Time.deltaTime;
 
-        if (player.CurrentAnimTime >= player.CurrentAnimTotalTime)
+        if (player.CurrentAnimTime >= player.CurrentAnimTotalTime * AnimatorConstants.AvoidEarlyExitRatio)
         {
             player.StateMachine.ChangeState(player.LocomotionState);
         }

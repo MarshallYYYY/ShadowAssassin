@@ -9,6 +9,7 @@
 .vscode/
 .vsconfig
 
+.codely
 .codely.packages
 .codely-cli
 .codelyignore

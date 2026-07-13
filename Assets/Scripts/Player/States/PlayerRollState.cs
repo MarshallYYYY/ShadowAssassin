@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// 玩家翻滚状态：播放翻滚动画。
+/// 玩家翻滚状态：CrossFade 播放翻滚动画，动画播完后切回 LocomotionState。
 /// </summary>
 public class PlayerRollState : IState
 {
@@ -14,8 +14,7 @@ public class PlayerRollState : IState
 
     public void OnEnter()
     {
-        // 不清除 AxisX/AxisY，保留方向信息让翻滚混合树播放对应方向的动画
-        player.Animator.SetTrigger(AnimatorConstants.Roll);
+        player.Animator.CrossFadeInFixedTime(AnimatorConstants.RollState, AnimatorConstants.RollFadeDuration);
         player.CurrentAnimTotalTime = AnimatorConstants.RollAnimTotalTime;
         player.CurrentAnimTime = 0;
     }
@@ -24,7 +23,7 @@ public class PlayerRollState : IState
     {
         player.CurrentAnimTime += Time.deltaTime;
 
-        if (player.CurrentAnimTime >= player.CurrentAnimTotalTime)
+        if (player.CurrentAnimTime >= player.CurrentAnimTotalTime * AnimatorConstants.RollEarlyExitRatio)
         {
             player.StateMachine.ChangeState(player.LocomotionState);
         }
