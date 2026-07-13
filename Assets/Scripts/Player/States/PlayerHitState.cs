@@ -7,9 +7,6 @@ using UnityEngine;
 public class PlayerHitState : IState
 {
     private readonly PlayerController player;
-    private float hitTimer;
-    // TODO：换成受击动画的时长
-    private float hitDuration = 0.3f;
 
     public PlayerHitState(PlayerController player)
     {
@@ -18,14 +15,16 @@ public class PlayerHitState : IState
 
     public void OnEnter()
     {
-        hitTimer = 0f;
+        player.Animator.SetTrigger(AnimatorConstants.Hit);
+        player.CurrentAnimTotalTime = AnimatorConstants.HitAnimTotalTime;
+        player.CurrentAnimTime = 0;
     }
 
     public void OnUpdate()
     {
-        hitTimer += Time.deltaTime;
+        player.CurrentAnimTime += Time.deltaTime;
 
-        if (hitTimer >= hitDuration)
+        if (player.CurrentAnimTime >= player.CurrentAnimTotalTime)
         {
             player.StateMachine.ChangeState(player.LocomotionState);
         }
@@ -33,5 +32,6 @@ public class PlayerHitState : IState
 
     public void OnExit()
     {
+        player.CurrentAnimTime = 0;
     }
 }

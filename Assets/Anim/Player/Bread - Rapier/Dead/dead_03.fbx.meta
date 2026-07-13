@@ -5,7 +5,7 @@ ModelImporter:
   internalIDToNameTable:
   - first:
       74: 3746937251321147391
-    second: dead_03
+    second: Dead
   externalObjects: {}
   materials:
     materialImportMode: 2
@@ -36,7 +36,7 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: dead_03
+      name: Dead
       takeName: dead_03
       internalID: 0
       firstFrame: 0

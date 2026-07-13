@@ -110,7 +110,7 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
     public float MoveSpeed { get => moveSpeed; }
     public int ComboIndex { get => comboIndex; set => comboIndex = value; }
     public float CurrentAnimTime { get => currentAnimTime; set => currentAnimTime = value; }
-    public float CurrentActionTotalTime { get => currentAnimTotalTime; set => currentAnimTotalTime = value; }
+    public float CurrentAnimTotalTime { get => currentAnimTotalTime; set => currentAnimTotalTime = value; }
     public AttackAnimSO CurrentAttackAnimSO { get => currentAttackAnimSO; set => currentAttackAnimSO = value; }
     #endregion
 
@@ -258,7 +258,7 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
     #endregion
 
     #region 公共方法 — 供 States/状态机 调用
-    #region 攻击和伤害判定
+    #region 攻击动画、武器伤害盒子的开闭、受击伤害判定
     /// <summary>
     /// 播放攻击动画并更新连击 UI
     /// </summary>

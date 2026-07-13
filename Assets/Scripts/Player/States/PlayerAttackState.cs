@@ -97,7 +97,7 @@ public class PlayerAttackState : IState
         }
 
         // 4. 动画播完 → 切回 LocomotionState
-        if (player.CurrentAnimTime >= player.CurrentActionTotalTime)
+        if (player.CurrentAnimTime >= player.CurrentAnimTotalTime)
         {
             // 重攻击（ComboIndex == 0）的 attackType 不在连击逻辑中消费，需要在此清零
             // 防止切回 LocomotionState 后残留的 attackType 自动触发新攻击

@@ -15,6 +15,8 @@ public class PlayerDeadState : IState
 
     public void OnEnter()
     {
+        player.Animator.SetTrigger(AnimatorConstants.Dead);
+        SceneLoadService.Instance.LoadScene(SceneLoadConstants.VillageScene);
     }
 
     public void OnUpdate()

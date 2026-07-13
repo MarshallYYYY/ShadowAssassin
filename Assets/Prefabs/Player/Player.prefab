@@ -3188,7 +3188,7 @@ Animator:
   m_GameObject: {fileID: 7640127192256522133}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 7e481bfea9aaeed4da7e574b7be8c789, type: 2}
-  m_Controller: {fileID: 9100000, guid: 263059f9b9cebb84ebeb8ef6613bf342, type: 2}
+  m_Controller: {fileID: 9100000, guid: 4b236b6377856b94b8b15551b0216d91, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -3298,7 +3298,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poolSize: 10
-  fadeDuration: 0.5
 --- !u!1 &7679950390460602861
 GameObject:
   m_ObjectHideFlags: 0

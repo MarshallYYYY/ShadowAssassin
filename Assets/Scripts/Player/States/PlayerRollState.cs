@@ -16,7 +16,7 @@ public class PlayerRollState : IState
     {
         // 不清除 AxisX/AxisY，保留方向信息让翻滚混合树播放对应方向的动画
         player.Animator.SetTrigger(AnimatorConstants.Roll);
-        player.CurrentActionTotalTime = AnimatorConstants.RollAnimTotalTime;
+        player.CurrentAnimTotalTime = AnimatorConstants.RollAnimTotalTime;
         player.CurrentAnimTime = 0;
     }
 
@@ -24,7 +24,7 @@ public class PlayerRollState : IState
     {
         player.CurrentAnimTime += Time.deltaTime;
 
-        if (player.CurrentAnimTime >= player.CurrentActionTotalTime)
+        if (player.CurrentAnimTime >= player.CurrentAnimTotalTime)
         {
             player.StateMachine.ChangeState(player.LocomotionState);
         }

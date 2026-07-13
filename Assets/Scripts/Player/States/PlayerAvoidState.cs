@@ -16,7 +16,7 @@ public class PlayerAvoidState : IState
     {
         // 不清除 AxisX/AxisY，保留方向信息让闪避混合树播放对应方向的动画
         player.Animator.SetTrigger(AnimatorConstants.Avoid);
-        player.CurrentActionTotalTime = AnimatorConstants.AvoidAnimTotalTime;
+        player.CurrentAnimTotalTime = AnimatorConstants.AvoidAnimTotalTime;
         player.CurrentAnimTime = 0;
 
         player.AfterImage.StartEffect();
@@ -26,7 +26,7 @@ public class PlayerAvoidState : IState
     {
         player.CurrentAnimTime += Time.deltaTime;
 
-        if (player.CurrentAnimTime >= player.CurrentActionTotalTime)
+        if (player.CurrentAnimTime >= player.CurrentAnimTotalTime)
         {
             player.StateMachine.ChangeState(player.LocomotionState);
         }

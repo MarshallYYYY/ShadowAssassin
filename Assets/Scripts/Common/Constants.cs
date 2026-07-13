@@ -36,9 +36,13 @@ public static class AnimatorConstants
 
     public const string Avoid = nameof(Avoid);
     public const string Roll = nameof(Roll);
+    public const string Hit = nameof(Hit);
+    public const string Dead = nameof(Dead);
 
     public const float AvoidAnimTotalTime = 0.667f;
     public const float RollAnimTotalTime = 1.167f;
+    public const float HitAnimTotalTime = 0.467f;
+    public const float DeadAnimTotalTime = 1.267f;
 }
 public class NpcGameObjectNameConstants
 {
