@@ -70,7 +70,9 @@ public class DialogueWindow : MonoBehaviour
 
         departButton.onClick.AddListener(() =>
         {
-            SceneLoadService.Instance.LoadScene(SceneLoadConstants.DungeonScene);
+            SceneLoadService.Instance.LoadScene(
+                SceneLoadConstants.DungeonScene,
+                () => AudioService.Instance.PlayBgm(AudioConstants.BgmDungeonScene));
             GameManager.Instance.SwitchToPlayMode();
         });
         cancelKnightButton.onClick.AddListener(() =>

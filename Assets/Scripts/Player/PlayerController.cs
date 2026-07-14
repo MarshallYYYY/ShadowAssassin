@@ -283,6 +283,16 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
             CreateSeparator(currentAnimTotalTime, attackAnimSO.EnterFollowThroughTime);
 
             currentComboText.text = comboIndex.ToString();
+
+            // 根据连击索引播放对应的轻攻击音效
+            string[] lightAttackSfx = {
+                AudioConstants.PlayerLightAttack_01,
+                AudioConstants.PlayerLightAttack_02,
+                AudioConstants.PlayerLightAttack_03,
+                AudioConstants.PlayerLightAttack_04,
+                AudioConstants.PlayerLightAttack_05,
+            };
+            AudioService.Instance.PlaySfx(lightAttackSfx[index]);
         }
         else
         {
@@ -294,6 +304,14 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
             currentAttackAnimSO = attackAnimSO;
             currentAnimTotalTime = clip.length;
             comboSlider.gameObject.SetActive(false);
+
+            // 根据重攻击形态播放对应音效
+            string[] heavyAttackSfx = {
+                AudioConstants.PlayerStabAttack,
+                AudioConstants.PlayerLeapingAttack,
+                AudioConstants.PlayerDeriveAttack,
+            };
+            AudioService.Instance.PlaySfx(heavyAttackSfx[index]);
         }
         // animator.CrossFadeInFixedTime(clip.name, 0f);
         animator.CrossFadeInFixedTime(clip.name, AnimatorConstants.AttackFadeDuration);

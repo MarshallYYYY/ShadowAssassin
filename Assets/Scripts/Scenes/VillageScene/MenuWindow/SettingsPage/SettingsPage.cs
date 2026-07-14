@@ -26,11 +26,13 @@ public class SettingsPage : MonoBehaviour
     }
     private void OnSaveButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIConfirm);
         PersistentService.Instance.SetGameConfigVolume(masterSlider.value, bgmSlider.value, sfxSlider.value);
         AudioService.Instance.SetAudioSourceVolume(masterSlider.value, bgmSlider.value, sfxSlider.value);
     }
     private void OnCancelButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UICancel);
         PersistentService.Instance.GetVolume(out float masterVolume, out float bgmVolume, out float sfxVolume);
         masterSlider.value = masterVolume;
         bgmSlider.value = bgmVolume;

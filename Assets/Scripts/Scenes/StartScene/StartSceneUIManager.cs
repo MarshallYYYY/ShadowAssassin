@@ -91,6 +91,7 @@ public class StartSceneUIManager : MonoBehaviour
 
     private void OnNewGameButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         for (int i = 0; i < PersistentConstants.SaveSlotCount; i++)
         {
             int index = i + 1;
@@ -110,7 +111,9 @@ public class StartSceneUIManager : MonoBehaviour
         PersistentService.Instance.SetLastSelectedIndex(index);
         PersistentService.Instance.SetStartGameTimeOnEnterGame(index);
         PersistentService.Instance.SetPlayData(index, isNewGame);
-        SceneLoadService.Instance.LoadScene(SceneLoadConstants.VillageScene);
+        SceneLoadService.Instance.LoadScene(
+            SceneLoadConstants.VillageScene,
+            () => AudioService.Instance.PlayBgm(AudioConstants.BgmVillageScene));
     }
     private Tween delayTween = null;
     private void ShowTipText()
@@ -124,6 +127,7 @@ public class StartSceneUIManager : MonoBehaviour
     }
     private void OnContinueGameButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         // LastSelectedSaveSlotIndex 在 PersistenceService 读取 GameConfig 文件的时候已经设置好了
         // 这里也可以不调用 SetLastSelectedIndex()
         int index = PersistentService.Instance.GetLastSelectedIndex();
@@ -132,16 +136,19 @@ public class StartSceneUIManager : MonoBehaviour
 
     private void OnLoadGameButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         loadGamePanel.SetActive(true);
     }
 
     private void OnSettingsButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         settingsPanel.SetActive(true);
     }
 
     private void OnAboutButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         aboutPanel.SetActive(true);
     }
     #endregion
@@ -152,6 +159,7 @@ public class StartSceneUIManager : MonoBehaviour
     [SerializeField] private Button[] backButtons = new Button[3];
     private void OnBackButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         loadGamePanel.SetActive(false);
         settingsPanel.SetActive(false);
         aboutPanel.SetActive(false);
@@ -198,17 +206,20 @@ public class StartSceneUIManager : MonoBehaviour
     /// <param name="path"></param>
     private void OnContentButtonClicked(int index)
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         EnterGame(index);
     }
     private int deleteSaveSlotIndex = 0;
     private void OnDeleteButtonClicked(int index)
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         deleteConfirm.SetActive(true);
         deleteSaveSlotIndex = index;
     }
     #endregion
     private void OnConfirmButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIConfirm);
         int index = deleteSaveSlotIndex;
         // 如果要删除的存档是上次使用的存档，那么设置 LastSelectedSaveSlot 为 0，这会让 继续游戏按钮 不可点击。
         if (PersistentService.Instance.GetLastSelectedIndex() == index)
@@ -224,6 +235,7 @@ public class StartSceneUIManager : MonoBehaviour
     }
     private void OnCancelButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UICancel);
         deleteConfirm.SetActive(false);
     }
     #endregion

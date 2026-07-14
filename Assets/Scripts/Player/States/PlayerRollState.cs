@@ -17,6 +17,7 @@ public class PlayerRollState : IState
         player.Animator.CrossFadeInFixedTime(AnimatorConstants.RollState, AnimatorConstants.RollFadeDuration);
         player.CurrentAnimTotalTime = AnimatorConstants.RollAnimTotalTime;
         player.CurrentAnimTime = 0;
+        AudioService.Instance.PlaySfx(AudioConstants.PlayerRoll);
     }
 
     public void OnUpdate()

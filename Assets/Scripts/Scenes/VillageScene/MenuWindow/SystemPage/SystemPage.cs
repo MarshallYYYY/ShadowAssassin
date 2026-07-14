@@ -14,17 +14,22 @@ public class SystemPage : MonoBehaviour
     }
     private void OnSaveGameButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         int index = PersistentService.Instance.GetLastSelectedIndex();
         PersistentService.Instance.SaveGameTime(index);
     }
     private void OnBackMainMenuButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         OnSaveGameButtonClicked();
-        SceneLoadService.Instance.LoadScene(SceneLoadConstants.StartScene);
+        SceneLoadService.Instance.LoadScene(
+            SceneLoadConstants.StartScene,
+            () => AudioService.Instance.PlayBgm(AudioConstants.BgmStartScene));
     }
 
     private void OnQuitGameButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
 #if UNITY_EDITOR
         // 编辑器模式下：停止播放
         UnityEditor.EditorApplication.isPlaying = false;

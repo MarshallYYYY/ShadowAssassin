@@ -65,7 +65,8 @@ public class EnemyAttackState : IState
             enemy.PlayAnim(attackAnim);
             isAttacking = true;
             attackTimer = 0f;
-            attackDuration = 1.5f; // 攻击动画时长（Approximate）
+            attackDuration = 1.5f;
+            AudioService.Instance.PlaySfx(AudioConstants.EnemyAttack);
 
             // 对 Player 造成伤害
             PlayerController playerController = player.GetComponent<PlayerController>();

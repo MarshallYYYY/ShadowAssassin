@@ -19,6 +19,7 @@ public class PlayerAvoidState : IState
         player.CurrentAnimTime = 0;
 
         player.AfterImage.StartEffect();
+        AudioService.Instance.PlaySfx(AudioConstants.PlayerAvoid);
     }
 
     public void OnUpdate()

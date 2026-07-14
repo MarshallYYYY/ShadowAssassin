@@ -81,7 +81,9 @@ public class EnemySpawner : MonoBehaviour
         {
             Debug.LogError("End");
             PersistentService.Instance.AddQuestProgress(QuestCodeConstants.Dungeon);
-            SceneLoadService.Instance.LoadScene(SceneLoadConstants.VillageScene);
+            SceneLoadService.Instance.LoadScene(
+                SceneLoadConstants.VillageScene,
+                () => AudioService.Instance.PlayBgm(AudioConstants.BgmVillageScene));
         }
     }
     #endregion

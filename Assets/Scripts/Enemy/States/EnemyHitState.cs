@@ -16,6 +16,7 @@ public class EnemyHitState : IState
 
     public void OnEnter()
     {
+        // AudioService.Instance.PlaySfx(AudioConstants.EnemyHit);
         hitTimer = 0f;
         enemy.PlayAnim(EnemyAnimConstants.GetHit);
     }

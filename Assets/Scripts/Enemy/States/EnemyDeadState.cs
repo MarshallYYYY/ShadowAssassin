@@ -20,6 +20,7 @@ public class EnemyDeadState : IState
 
     public void OnEnter()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.EnemyDead);
         deadTimer = 0f;
 
         // 播放死亡动画

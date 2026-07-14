@@ -57,6 +57,7 @@ public class GameManager : MonoBehaviour
         inputActions = new();
         // 默认启用 UI
         SwitchToUIMode();
+        AudioService.Instance.PlayBgm(AudioConstants.BgmStartScene);
     }
     public void SwitchToUIMode()
     {

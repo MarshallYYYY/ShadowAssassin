@@ -15,7 +15,9 @@ public class PlayerDeadState : IState
     public void OnEnter()
     {
         player.Animator.Play(AnimatorConstants.DeadState);
-        SceneLoadService.Instance.LoadScene(SceneLoadConstants.VillageScene);
+        SceneLoadService.Instance.LoadScene(
+            SceneLoadConstants.VillageScene,
+            () => AudioService.Instance.PlayBgm(AudioConstants.BgmVillageScene));
     }
 
     public void OnUpdate()
