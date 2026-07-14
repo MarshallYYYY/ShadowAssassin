@@ -54,6 +54,7 @@ public class InventoryItemUI : MonoBehaviour, IPointerEnterHandler, IPointerClic
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         if (inventoryPage.CurrentSelectedItemUid == inventoryItem.Uid)
             return;
         isSelected = true;

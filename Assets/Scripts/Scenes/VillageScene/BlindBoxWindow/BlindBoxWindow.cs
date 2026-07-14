@@ -30,7 +30,11 @@ public class BlindBoxWindow : MonoBehaviour
         open10BlindBoxButton.onClick.AddListener(OnOpen10BlindBoxButtonClicked);
 
         tipPanel.SetActive(false);
-        confirmButton.onClick.AddListener(() => tipPanel.SetActive(false));
+        confirmButton.onClick.AddListener(() =>
+        {
+            AudioService.Instance.PlaySfx(AudioConstants.UIConfirm);
+            tipPanel.SetActive(false);
+        });
     }
     void OnEnable()
     {
@@ -39,6 +43,7 @@ public class BlindBoxWindow : MonoBehaviour
     #region Button Events
     private void OnBackButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         gameObject.SetActive(false);
     }
 
@@ -58,6 +63,7 @@ public class BlindBoxWindow : MonoBehaviour
     /// <param name="count"></param>
     private IEnumerator OpenBlindBoxs(int count)
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         DOTween.KillAll(true); // 终止上一轮残留的所有 tween
 
         int goldCoin = PersistentService.Instance.GetGoldCoin();

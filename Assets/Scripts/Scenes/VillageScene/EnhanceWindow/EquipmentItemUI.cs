@@ -47,6 +47,7 @@ public class EquipmentItemUI : MonoBehaviour
     #endregion
     private void OnItemButtonClicked(int index)
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         // 除了已被点击的当前物体，其他物体的 selectedImage 都关闭显示
         for (int i = 0; i < transform.parent.childCount; i++)
         {

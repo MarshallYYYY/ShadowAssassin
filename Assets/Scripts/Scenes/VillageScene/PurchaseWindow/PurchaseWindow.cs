@@ -25,13 +25,21 @@ public class PurchaseWindow : MonoBehaviour
     #endregion
     void Awake()
     {
-        backButton.onClick.AddListener(() => gameObject.SetActive(false));
+        backButton.onClick.AddListener(() =>
+        {
+            AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
+            gameObject.SetActive(false);
+        });
         goldCoinText.text = PersistentService.Instance.GetGoldCoin().ToString();
         InitMerchantGoods();
         purchaseButton.onClick.AddListener(OnPurchaseButtonClicked);
 
         tipPanel.SetActive(false);
-        confirmButton.onClick.AddListener(() => tipPanel.SetActive(false));
+        confirmButton.onClick.AddListener(() =>
+        {
+            AudioService.Instance.PlaySfx(AudioConstants.UIConfirm);
+            tipPanel.SetActive(false);
+        });
     }
     private void InitMerchantGoods()
     {
@@ -62,6 +70,7 @@ public class PurchaseWindow : MonoBehaviour
     }
     private void OnPurchaseButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         int totalPrice = 0;
         for (int i = 0; i < goodsUIs.Count; i++)
         {

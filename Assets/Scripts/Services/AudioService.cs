@@ -1,8 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using YooAsset;
-using System;
 
 public class AudioService : BaseService<AudioService>
 {
@@ -34,25 +32,30 @@ public class AudioService : BaseService<AudioService>
 
     #region 播放/停止 BGM/SFX 音频
     /// <summary>
-    /// 播放背景音乐（异步加载，带缓存）
+    /// 播放背景音乐（同步加载，带缓存）
     /// </summary>
     /// <param name="assetName">YooAsset 中的资源名称（如 "VillageBGM"）</param>
     public void PlayBgm(string assetName)
     {
-        PlayAudio(BgmPathPrefix + assetName, clip =>
+        AudioClip clip = LoadAudio(BgmPathPrefix + assetName);
+        if (clip != null)
         {
             bgm.clip = clip;
             bgm.Play();
-        });
+        }
     }
 
     /// <summary>
-    /// 播放音效（异步加载，带缓存）
+    /// 播放音效（同步加载，带缓存）
     /// </summary>
     /// <param name="assetName">YooAsset 中的资源名称（如 "Enemy_Attack"）</param>
     public void PlaySfx(string assetName)
     {
-        PlayAudio(SfxPathPrefix + assetName, clip => sfx.PlayOneShot(clip));
+        AudioClip clip = LoadAudio(SfxPathPrefix + assetName);
+        if (clip != null)
+        {
+            sfx.PlayOneShot(clip);
+        }
     }
 
     public void StopBgm()
@@ -61,38 +64,29 @@ public class AudioService : BaseService<AudioService>
     }
     #endregion
 
-    #region 异步加载
+    #region 加载
     /// <summary>
-    /// 播放音频（带缓存，已缓存则同步回调，未缓存则异步加载）
+    /// 同步加载 AudioClip（带缓存）
     /// </summary>
-    private void PlayAudio(string fullPath, Action<AudioClip> onLoaded)
+    private AudioClip LoadAudio(string fullPath)
     {
-        // 已缓存：直接回调，无需协程
         if (audioCache.TryGetValue(fullPath, out AudioClip cachedClip))
-        {
-            onLoaded?.Invoke(cachedClip);
-            return;
-        }
+            return cachedClip;
 
-        StartCoroutine(PlayAudioCoroutine(fullPath, onLoaded));
-    }
-
-    private IEnumerator PlayAudioCoroutine(string fullPath, Action<AudioClip> onLoaded)
-    {
         ResourcePackage package = YooAssets.GetPackage(YooAssetConstants.PackageName);
-        AssetHandle handle = package.LoadAssetAsync<AudioClip>(fullPath);
-        yield return handle;
-
+        AssetHandle handle = package.LoadAssetSync<AudioClip>(fullPath);
         AudioClip clip = handle.AssetObject as AudioClip;
+
         if (clip != null)
         {
             audioCache[fullPath] = clip;
-            onLoaded?.Invoke(clip);
         }
         else
         {
             Debug.LogWarning($"[AudioService] 音频加载失败: {fullPath}");
         }
+
+        return clip;
     }
     #endregion
 }

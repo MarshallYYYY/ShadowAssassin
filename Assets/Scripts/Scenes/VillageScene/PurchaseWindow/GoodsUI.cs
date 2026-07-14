@@ -45,6 +45,7 @@ public class GoodsUI : MonoBehaviour
     }
     private void SetQuantity(int value)
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         quantity = Mathf.Clamp(value, 0, MaxQuantity);
         quantityText.text = quantity.ToString();
         minusButton.interactable = quantity > 0;

@@ -117,17 +117,20 @@ public class InventoryPage : MonoBehaviour
 
     private void OnDiscardButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         discardItemPanel.SetActive(true);
     }
 
 
     private void OnCancelButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UICancel);
         discardItemPanel.SetActive(false);
     }
 
     private void OnDiscardConfirmButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIConfirm);
         // 找到uid对应的动态数据
         InventoryItem inventoryItem = PersistentService.Instance.GetInventoryItem(currentSelectedItemUid);
         PersistentService.Instance.DiscardInventoryItem(inventoryItem);

@@ -79,6 +79,7 @@ public class VillageSceneUIManager : MonoBehaviour
     }
     private void OnTabBarButtonClicked(int index)
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         for (int i = 0; i < pages.Count; i++)
         {
             tabButtonSelectedImages[i].SetActive(i == index);

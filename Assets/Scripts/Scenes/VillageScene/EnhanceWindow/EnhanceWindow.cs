@@ -39,7 +39,11 @@ public class EnhanceWindow : MonoBehaviour
     #endregion
     void Awake()
     {
-        backButton.onClick.AddListener(() => gameObject.SetActive(false));
+        backButton.onClick.AddListener(() =>
+        {
+            AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
+            gameObject.SetActive(false);
+        });
 
         List<Equipment> equipments = PersistentService.Instance.GetAllEquipment();
         for (int i = 0; i < equipmentsTransform.childCount; i++)
@@ -58,6 +62,7 @@ public class EnhanceWindow : MonoBehaviour
     /// </summary>
     private void OnEnhanceButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         if (currentEquipment == null || currentEquipmentSO == null)
             return;
 

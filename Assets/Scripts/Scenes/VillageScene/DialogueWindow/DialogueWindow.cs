@@ -70,6 +70,7 @@ public class DialogueWindow : MonoBehaviour
 
         departButton.onClick.AddListener(() =>
         {
+            AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
             SceneLoadService.Instance.LoadScene(
                 SceneLoadConstants.DungeonScene,
                 () => AudioService.Instance.PlayBgm(AudioConstants.BgmDungeonScene));
@@ -77,21 +78,36 @@ public class DialogueWindow : MonoBehaviour
         });
         cancelKnightButton.onClick.AddListener(() =>
         {
+            AudioService.Instance.PlaySfx(AudioConstants.UICancel);
             knightPanel.SetActive(false);
             EndDialogue();
         });
 
-        purchaseButton.onClick.AddListener(() => purchaseWindow.SetActive(true));
-        blindBoxButton.onClick.AddListener(() => blindBoxWindow.SetActive(true));
+        purchaseButton.onClick.AddListener(() =>
+        {
+            AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
+            purchaseWindow.SetActive(true);
+        });
+        blindBoxButton.onClick.AddListener(() =>
+        {
+            AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
+            blindBoxWindow.SetActive(true);
+        });
         cancelMerchantButton.onClick.AddListener(() =>
         {
+            AudioService.Instance.PlaySfx(AudioConstants.UICancel);
             merchantPanel.SetActive(false);
             EndDialogue();
         });
 
-        enhanceButton.onClick.AddListener(() => equipmentEnhanceWindow.SetActive(true));
+        enhanceButton.onClick.AddListener(() =>
+        {
+            AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
+            equipmentEnhanceWindow.SetActive(true);
+        });
         cancelBlacksmithButton.onClick.AddListener(() =>
         {
+            AudioService.Instance.PlaySfx(AudioConstants.UICancel);
             blacksmithPanel.SetActive(false);
             EndDialogue();
         });
@@ -100,6 +116,7 @@ public class DialogueWindow : MonoBehaviour
     #region Button Events  
     private void OnNextButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         setenceIndex++;
         // 如果句子索引不等于总数量
         if (setenceIndex != setences.Count)

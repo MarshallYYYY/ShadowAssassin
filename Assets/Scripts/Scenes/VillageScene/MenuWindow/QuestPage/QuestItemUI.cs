@@ -39,6 +39,7 @@ public class QuestItemUI : MonoBehaviour
 
     private void OnClaimButtonClicked()
     {
+        AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         quest.IsClaimed = true;
         claimButton.interactable = false;
         claimText.text = "已领取";
