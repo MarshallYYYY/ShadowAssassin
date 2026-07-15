@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 敌人攻击状态：停止移动，随机播放 HorizontalAttack 或 DownwardAttack，对 Player 造成伤害，有冷却时间。
+/// 敌人攻击状态：停止移动，随机播放攻击动画，在判定窗口（EnterHitTime ~ EnterFollowThroughTime）启用伤害盒，
+/// 通过 OnTriggerEnter 检测 Player 并造成伤害，有冷却时间。
 /// 攻击动画播完后回到追击状态。
 /// </summary>
 public class EnemyAttackState : IState
@@ -10,6 +12,8 @@ public class EnemyAttackState : IState
     private bool isAttacking;
     private float attackTimer;
     private float attackDuration;
+    private AttackAnimSO currentAttackAnimSO;
+    private bool isHitboxActive;
 
     public EnemyAttackState(EnemyController enemy)
     {
@@ -20,6 +24,8 @@ public class EnemyAttackState : IState
     {
         isAttacking = false;
         attackTimer = 0f;
+        currentAttackAnimSO = null;
+        isHitboxActive = false;
     }
 
     public void OnUpdate()
@@ -27,7 +33,7 @@ public class EnemyAttackState : IState
         Transform player = enemy.GetPlayerTransform();
         if (player == null)
         {
-            enemy.StateMachine.ChangeState(enemy.PatrolState);
+            enemy.StateMachine.ChangeState(enemy.IdleState);
             return;
         }
 
@@ -36,10 +42,32 @@ public class EnemyAttackState : IState
         // 朝向 Player
         enemy.FaceTarget(player.position);
 
-        // 正在播放攻击动画 → 用计时器等动画播完后切回追击
+        // 正在播放攻击动画 → 在判定窗口内启用伤害盒，动画播完切回追击
         if (isAttacking)
         {
             attackTimer += Time.deltaTime;
+
+            if (currentAttackAnimSO != null)
+            {
+                float enterHitTime = currentAttackAnimSO.EnterHitTime;
+                float enterFollowThroughTime = currentAttackAnimSO.EnterFollowThroughTime;
+
+                // 判定窗口内 → 启用伤害盒
+                if (isHitboxActive is false && enterHitTime <= attackTimer && attackTimer < enterFollowThroughTime)
+                {
+                    bool isPlayHitAnim = currentAttackAnimSO.Clip.name == EnemyAnimConstants.HorizontalAttack;
+                    enemy.EnableHitbox(currentAttackAnimSO.Damage, isPlayHitAnim);
+                    isHitboxActive = true;
+                }
+                // 进入收尾阶段 → 关闭伤害盒
+                else if (isHitboxActive && attackTimer >= enterFollowThroughTime)
+                {
+                    enemy.DisableHitbox();
+                    isHitboxActive = false;
+                }
+            }
+
+            // 动画播完 → 切回追击
             if (attackTimer >= attackDuration)
             {
                 isAttacking = false;
@@ -58,19 +86,18 @@ public class EnemyAttackState : IState
         // 攻击冷却结束 → 执行攻击
         if (!enemy.IsInAttackCooldown)
         {
+            List<AttackAnimSO> attackAnims = enemy.AttackAnims;
+            if (attackAnims == null || attackAnims.Count == 0)
+                return;
+
             // 随机选择攻击动画
-            string attackAnim = Random.value < 0.5f
-                ? EnemyAnimConstants.HorizontalAttack
-                : EnemyAnimConstants.DownwardAttack;
-            enemy.PlayAnim(attackAnim);
+            currentAttackAnimSO = attackAnims[Random.Range(0, attackAnims.Count)];
+            enemy.PlayAnim(currentAttackAnimSO.Clip.name);
             isAttacking = true;
             attackTimer = 0f;
-            attackDuration = 1.5f;
-            AudioService.Instance.PlaySfx(AudioConstants.EnemyAttack);
-
-            // 对 Player 造成伤害
-            PlayerController playerController = player.GetComponent<PlayerController>();
-            playerController?.TakeDamage(enemy.AttackDamage);
+            attackDuration = currentAttackAnimSO.Clip.length;
+            isHitboxActive = false;
+            // AudioService.Instance.PlaySfx(AudioConstants.EnemyAttack);
 
             enemy.RecordAttack();
         }
@@ -79,5 +106,8 @@ public class EnemyAttackState : IState
     public void OnExit()
     {
         isAttacking = false;
+        enemy.DisableHitbox();
+        currentAttackAnimSO = null;
+        isHitboxActive = false;
     }
 }

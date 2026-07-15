@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Scriptable Objects/EnemySO")]
@@ -20,7 +21,6 @@ public class EnemySO : ScriptableObject
     public float DetectRange = 8f;
     public float AttackRange = 1.5f;
     public float AttackCooldown = 1.5f;
-    public float AttackDamage = 10f;
     #endregion
 
     #region 巡逻
@@ -28,4 +28,6 @@ public class EnemySO : ScriptableObject
     public float PatrolRadius = 5f;
     public float PatrolWaitTime = 2f;
     #endregion
+
+    public List<AttackAnimSO> AttackAnims = new();
 }

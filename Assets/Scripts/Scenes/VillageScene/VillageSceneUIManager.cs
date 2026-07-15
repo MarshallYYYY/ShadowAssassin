@@ -6,29 +6,36 @@ using UnityEngine.UI;
 
 public class VillageSceneUIManager : MonoBehaviour
 {
+    // [SerializeField] private Button menuButton;
     private void Awake()
     {
         Debug.Log($"当前使用的是存档 {PersistentService.Instance.GetLastSelectedIndex()}");
         GameManager.Instance.SwitchToPlayMode();
 
         InitMenu();
+
+        // menuButton.onClick.AddListener(OnMenuButtonClicked);
+    }
+    private void OnMenuButtonClicked()
+    {
+        // 如果Menu打开并处于UI模式，则切换到Player模式，然后关闭Menu
+        if (menuWindow.activeSelf && GameManager.Instance.InputActions.UI.enabled)
+        {
+            GameManager.Instance.SwitchToPlayMode();
+            menuWindow.SetActive(false);
+        }
+        // 如果Menu关闭并处于Player模式，则切换到UI模式，然后显示Menu
+        else if (menuWindow.activeSelf is false && GameManager.Instance.InputActions.Player.enabled)
+        {
+            GameManager.Instance.SwitchToUIMode();
+            menuWindow.SetActive(true);
+        }
     }
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            // 如果Menu打开并处于UI模式，则切换到Player模式，然后关闭Menu
-            if (menuWindow.activeSelf && GameManager.Instance.InputActions.UI.enabled)
-            {
-                GameManager.Instance.SwitchToPlayMode();
-                menuWindow.SetActive(false);
-            }
-            // 如果Menu关闭并处于Player模式，则切换到UI模式，然后显示Menu
-            else if (menuWindow.activeSelf is false && GameManager.Instance.InputActions.Player.enabled)
-            {
-                GameManager.Instance.SwitchToUIMode();
-                menuWindow.SetActive(true);
-            }
+            OnMenuButtonClicked();
         }
         if (Input.GetKeyDown(KeyCode.J))
         {

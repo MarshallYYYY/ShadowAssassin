@@ -19,6 +19,18 @@ MonoBehaviour:
   DetectRange: 8
   AttackRange: 1.5
   AttackCooldown: 1.5
-  AttackDamage: 5
   PatrolRadius: 5
   PatrolWaitTime: 2
+  AttackAnims:
+  - Name: "\u6A2A\u5411\u653B\u51FB"
+    Clip: {fileID: -203655887218126122, guid: 9838cb6bc9be61a498565b35e6d469ba, type: 3}
+    TotalFrame: 144
+    EnterHitFrame: 45
+    EnterFollowThroughFrame: 85
+    Damage: 7
+  - Name: "\u7AD6\u5411\u653B\u51FB"
+    Clip: {fileID: -203655887218126122, guid: a0b14140fdccf3743bf443131759268c, type: 3}
+    TotalFrame: 136
+    EnterHitFrame: 35
+    EnterFollowThroughFrame: 70
+    Damage: 4

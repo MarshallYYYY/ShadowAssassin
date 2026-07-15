@@ -3,6 +3,7 @@
 /// </summary>
 public static class EnemyAnimConstants
 {
+    public const string Idle = nameof(Idle);
     public const string Walk = nameof(Walk);
     public const string Run = nameof(Run);
     public const string HorizontalAttack = nameof(HorizontalAttack);

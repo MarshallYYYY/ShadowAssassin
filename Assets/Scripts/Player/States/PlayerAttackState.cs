@@ -114,6 +114,7 @@ public class PlayerAttackState : IState
         // 清理攻击数据
         player.ComboIndex = 0;
         player.CurrentAnimTime = 0;
+        player.IsSuperArmor = false;
 
         player.ComboSlider.gameObject.SetActive(false);
         player.ClearSeparators();

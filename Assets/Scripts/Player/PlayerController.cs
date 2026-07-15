@@ -53,6 +53,10 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
     private bool isLock = false;
     private Transform lockTarget;
     private PlayerAttackType attackType = PlayerAttackType.None;
+    /// <summary>
+    /// 霸体
+    /// </summary>
+    private bool isSuperArmor = false;
     private bool isRollPressed = false;
     private bool isAvoidPressed = false;
     #endregion
@@ -93,6 +97,10 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
     public Vector2 MoveInput => moveInput;
     public bool IsLock => isLock;
     public PlayerAttackType AttackType { get => attackType; set => attackType = value; }
+    /// <summary>
+    /// 霸体
+    /// </summary>
+    public bool IsSuperArmor { get => isSuperArmor; set => isSuperArmor = value; }
     public bool IsRollPressed { get => isRollPressed; set => isRollPressed = value; }
     public bool IsAvoidPressed { get => isAvoidPressed; set => isAvoidPressed = value; }
     #endregion
@@ -264,6 +272,7 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
     /// </summary>
     public void PlayAttack(int index, PlayerAttackType type)
     {
+        isSuperArmor = type == PlayerAttackType.Heavy;
         AnimationClip clip;
 
         if (type == PlayerAttackType.Light)
@@ -339,7 +348,9 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
     /// <summary>
     /// 受到伤害
     /// </summary>
-    public void TakeDamage(float damage)
+    /// <param name="damage">伤害值</param>
+    /// <param name="isPlayHitAnim">是否播放受击动画（仅 HorizontalAttack 触发）</param>
+    public void TakeDamage(float damage, bool isPlayHitAnim = false)
     {
         if (currentHP <= 0f)
             return;
@@ -347,7 +358,16 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
         currentHP -= damage;
         currentHP = Mathf.Max(currentHP, 0f);
         playerHealthBar.SetHP(currentHP);
-        stateMachine.ChangeState(currentHP <= 0f ? deadState : hitState);
+
+        if (currentHP <= 0f)
+        {
+            stateMachine.ChangeState(deadState);
+        }
+        // 重攻击期间不会被打断，只扣血不播受击动画
+        else if (isPlayHitAnim && !isSuperArmor)
+        {
+            stateMachine.ChangeState(hitState);
+        }
     }
     #endregion
 

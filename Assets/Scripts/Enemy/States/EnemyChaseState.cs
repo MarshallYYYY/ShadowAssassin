@@ -14,7 +14,7 @@ public class EnemyChaseState : IState
 
     public void OnEnter()
     {
-        enemy.PlayAnim(EnemyAnimConstants.Run);
+        enemy.PlayAnim(EnemyAnimConstants.Run, 0.1f);
     }
 
     public void OnUpdate()
@@ -38,7 +38,7 @@ public class EnemyChaseState : IState
         // 脱战：超出侦测范围 1.5 倍
         if (distance > enemy.DetectRange * 1.5f)
         {
-            enemy.StateMachine.ChangeState(enemy.PatrolState);
+            enemy.StateMachine.ChangeState(enemy.IdleState);
             return;
         }
 

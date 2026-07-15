@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -17,6 +18,7 @@ public class EnemyController : MonoBehaviour, IStateMachineOwner
     #endregion
 
     #region 状态实例
+    private EnemyIdleState idleState;
     private EnemyPatrolState patrolState;
     private EnemyChaseState chaseState;
     private EnemyAttackState attackState;
@@ -27,6 +29,7 @@ public class EnemyController : MonoBehaviour, IStateMachineOwner
     #region 配置
     [SerializeField] private EnemySO config;
     [SerializeField] private GameObject enemyHealthBarPrefab;
+    [SerializeField] private EnemyHitbox hitbox;
     #endregion
 
     #region 运行时数据
@@ -50,48 +53,35 @@ public class EnemyController : MonoBehaviour, IStateMachineOwner
 
     #region 公开属性
     #region 组件与状态机
-    public Animator Animator => animator;
     public CharacterController CharacterController => characterController;
     public StateMachine<EnemyController> StateMachine => stateMachine;
+    public EnemyIdleState IdleState => idleState;
     public EnemyPatrolState PatrolState => patrolState;
     public EnemyChaseState ChaseState => chaseState;
     public EnemyAttackState AttackState => attackState;
-    public EnemyHitState HitState => hitState;
-    public EnemyDeadState DeadState => deadState;
     #endregion
-
-    #region 配置
-    public EnemySO Config => config;
-    #endregion
-
     #region 血量
-    public float MaxHP => config.MaxHP;
-    public float CurrentHP => currentHP;
     public bool IsDead => isDead;
     #endregion
 
     #region 移动
     public float MoveSpeed => config.MoveSpeed;
     public float ChaseSpeed => config.ChaseSpeed;
-    public float RotationSpeed => config.RotationSpeed;
     #endregion
 
     #region 检测
     public float DetectRange => config.DetectRange;
     public float AttackRange => config.AttackRange;
-    public float AttackCooldown => config.AttackCooldown;
-    public float AttackDamage => config.AttackDamage;
     public bool IsInAttackCooldown => Time.time - lastAttackTime < config.AttackCooldown;
     #endregion
 
     #region 巡逻
     public float PatrolRadius => config.PatrolRadius;
-    public float PatrolWaitTime => config.PatrolWaitTime;
     public Vector3 SpawnPosition => spawnPosition;
     #endregion
 
     #region 攻击
-    public float LastAttackTime => lastAttackTime;
+    public List<AttackAnimSO> AttackAnims => config.AttackAnims;
     #endregion
     #endregion
 
@@ -104,11 +94,14 @@ public class EnemyController : MonoBehaviour, IStateMachineOwner
 
         // 初始化状态机
         stateMachine = new StateMachine<EnemyController>(this);
+        idleState = new EnemyIdleState(this);
         patrolState = new EnemyPatrolState(this);
         chaseState = new EnemyChaseState(this);
         attackState = new EnemyAttackState(this);
         hitState = new EnemyHitState(this);
         deadState = new EnemyDeadState(this);
+
+        enemyHealthBarRoot = GameObject.Find("EnemyHealthBarRoot").transform;
     }
 
     void Update()
@@ -124,6 +117,7 @@ public class EnemyController : MonoBehaviour, IStateMachineOwner
     #endregion
 
     #region 公共方法
+    private Transform enemyHealthBarRoot;
     /// <summary>
     /// 对象池取出时初始化
     /// </summary>
@@ -140,19 +134,15 @@ public class EnemyController : MonoBehaviour, IStateMachineOwner
         capsuleCollider.enabled = true;
 
         // 创建血条 UI
-        if (enemyHealthBarPrefab != null)
+        if (enemyHealthBarPrefab != null && enemyHealthBarRoot != null)
         {
-            Canvas canvas = FindObjectOfType<Canvas>();
-            if (canvas != null)
-            {
-                GameObject barGo = Instantiate(enemyHealthBarPrefab, canvas.transform);
-                enemyHealthBar = barGo.GetComponent<EnemyHealthBar>();
-                enemyHealthBar.HideBar();
-            }
+            GameObject barGo = Instantiate(enemyHealthBarPrefab, enemyHealthBarRoot);
+            enemyHealthBar = barGo.GetComponent<EnemyHealthBar>();
+            enemyHealthBar.HideBar();
         }
 
         // 重置状态
-        stateMachine.ChangeState(patrolState);
+        stateMachine.ChangeState(idleState);
     }
 
     /// <summary>
@@ -258,11 +248,27 @@ public class EnemyController : MonoBehaviour, IStateMachineOwner
     }
 
     /// <summary>
+    /// 启用武器伤害判定
+    /// </summary>
+    public void EnableHitbox(float damage, bool isPlayHitAnim)
+    {
+        hitbox?.EnableHitbox(damage, isPlayHitAnim);
+    }
+
+    /// <summary>
+    /// 关闭武器伤害判定
+    /// </summary>
+    public void DisableHitbox()
+    {
+        hitbox?.DisableHitbox();
+    }
+
+    /// <summary>
     /// 播放指定动画状态（CrossFade）
     /// </summary>
-    public void PlayAnim(string stateName)
+    public void PlayAnim(string stateName, float fixedTransitionDuration = 0f)
     {
-        animator.CrossFade(stateName, 0f);
+        animator.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
     }
 
     /// <summary>

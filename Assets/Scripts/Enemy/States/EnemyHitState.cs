@@ -27,14 +27,14 @@ public class EnemyHitState : IState
 
         if (hitTimer >= hitDuration)
         {
-            // 受击动画播完：Player 在侦测范围内 → 追击，否则 → 巡逻
+            // 受击动画播完：Player 在侦测范围内 → 追击，否则 → 待机
             if (enemy.DistanceToPlayer() <= enemy.DetectRange)
             {
                 enemy.StateMachine.ChangeState(enemy.ChaseState);
             }
             else
             {
-                enemy.StateMachine.ChangeState(enemy.PatrolState);
+                enemy.StateMachine.ChangeState(enemy.IdleState);
             }
         }
     }

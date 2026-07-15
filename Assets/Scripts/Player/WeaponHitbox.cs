@@ -7,13 +7,13 @@ using UnityEngine;
 /// 使用 HashSet 去重，同一敌人每次攻击只命中一次。
 /// </summary>
 [RequireComponent(typeof(MeshCollider))]
-
 public class WeaponHitbox : MonoBehaviour
 {
     #region 数据
     private float currentDamage;
     private bool isActive;
     private PlayerController playerController;
+    private HashSet<EnemyController> hitTargets = new();
     #endregion
 
     #region 生命周期
@@ -34,6 +34,13 @@ public class WeaponHitbox : MonoBehaviour
             return;
 
         EnemyController enemy = other.GetComponent<EnemyController>();
+        if (enemy == null)
+            return;
+
+        if (hitTargets.Contains(enemy))
+            return;
+
+        hitTargets.Add(enemy);
         enemy.TakeDamage(currentDamage);
     }
     #endregion
@@ -50,6 +57,7 @@ public class WeaponHitbox : MonoBehaviour
     {
         currentDamage = damage;
         isActive = true;
+        hitTargets.Clear();
         GetComponent<Collider>().enabled = true;
     }
 
