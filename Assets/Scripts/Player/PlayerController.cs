@@ -273,7 +273,7 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
     public void PlayAttack(int index, PlayerAttackType type)
     {
         isSuperArmor = type == PlayerAttackType.Heavy;
-        AnimationClip clip;
+        AnimationClip clip = null;
 
         if (type == PlayerAttackType.Light)
         {
@@ -303,7 +303,7 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
             };
             AudioService.Instance.PlaySfx(lightAttackSfx[index]);
         }
-        else
+        else if (type == PlayerAttackType.Heavy)
         {
             // 重攻击：0 - 蓄力前刺，1 - 跳跃斩击，2 - 派生攻击
             // 连击归零，不显示 Slider
@@ -381,6 +381,7 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
         lockTarget = null;
     }
     #endregion
+
     #region 辅助方法
     /// <summary>
     /// 清除一次性输入标志（状态切换时由 StateMachine 自动调用）
@@ -392,7 +393,6 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
         isAvoidPressed = false;
     }
     #endregion
-
 
     #endregion
 
@@ -417,7 +417,8 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
         {
             Transform child = separators.GetChild(0);
             child.SetParent(null);
-            DestroyImmediate(child.gameObject);
+            // DestroyImmediate(child.gameObject);
+            Destroy(child.gameObject);
         }
     }
     #endregion

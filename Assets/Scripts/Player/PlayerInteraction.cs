@@ -28,12 +28,13 @@ public class PlayerInteraction : MonoBehaviour
         }
 
         dialogueWindow.OnDialogueEnd += ActiveNextNpcCollider;
-        dialogueWindow.Init();
         dialogueWindow.gameObject.SetActive(false);
     }
-
-    void OnTriggerEnter(Collider other)
+    void OnTriggerStay(Collider other)
     {
+        // 保留？：防止在DungeonScene中报空引用错误
+        if (dialogueWindow?.gameObject.activeSelf is true)
+            return;
         if (other.CompareTag(Constants.NpcTag))
         {
             // 找到碰撞的是第几个 NPC，记录本轮对话索引
@@ -52,6 +53,11 @@ public class PlayerInteraction : MonoBehaviour
             // 显示对话窗口
             dialogueWindow.gameObject.SetActive(true);
         }
+    }
+    void OnTriggerExit(Collider other)
+    {
+        if (dialogueWindow?.gameObject.activeSelf is true)
+            dialogueWindow.gameObject.SetActive(false);
     }
     /// <summary>
     /// 当前对话结束后，启用下一个 NPC 的 BoxCollider
