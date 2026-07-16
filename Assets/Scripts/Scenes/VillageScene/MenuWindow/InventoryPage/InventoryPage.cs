@@ -60,7 +60,7 @@ public class InventoryPage : MonoBehaviour
     /// </summary>
     private void RefreshUI()
     {
-        goldCoinText.text = PersistentService.Instance.GetGoldCoin().ToString();
+        goldCoinText.text = PersistentService.Instance.GoldCoin.ToString();
         RefreshScrollView();
         detailPanel.SetActive(false);
         discardItemPanel.SetActive(false);

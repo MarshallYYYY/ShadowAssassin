@@ -39,7 +39,7 @@ public class VillageSceneUIManager : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.J))
         {
-            PersistentService.Instance.SetGoldCoin(99999);
+            PersistentService.Instance.GoldCoin = 99999;
         }
     }
     #region MenuWindow

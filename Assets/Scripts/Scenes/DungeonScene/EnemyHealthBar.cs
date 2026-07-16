@@ -1,5 +1,6 @@
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// 敌人血条 UI：即时更新前景血条，延迟血条用 DOTween 平滑追赶，产生"慢慢减少"效果。
@@ -19,6 +20,7 @@ public class EnemyHealthBar : MonoBehaviour
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private RectTransform delayRect;
     [SerializeField] private RectTransform fillRect;
+    [SerializeField] private Text hpText;
     #endregion
 
     #region 常量
@@ -69,6 +71,8 @@ public class EnemyHealthBar : MonoBehaviour
             ratio,
             DelayDuration
         );
+
+        hpText.text = $"{current} / {max}";
     }
 
     /// <summary>

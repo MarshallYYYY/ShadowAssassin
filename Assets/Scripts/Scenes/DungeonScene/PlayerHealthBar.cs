@@ -1,5 +1,6 @@
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// 玩家血条 UI：即时更新前景血条，延迟血条用 DOTween 平滑追赶，产生"慢慢减少"效果。
@@ -10,6 +11,7 @@ public class PlayerHealthBar : MonoBehaviour
     #region 外部赋值 SerializeField
     [SerializeField] private RectTransform fillRect;
     [SerializeField] private RectTransform delayRect;
+    [SerializeField] private Text hpText;
     #endregion
 
     #region 常量
@@ -17,15 +19,10 @@ public class PlayerHealthBar : MonoBehaviour
     #endregion
 
     #region 数据
-    private float maxHP;
     private Tween delayTween;
     #endregion
 
     #region 生命周期
-    void Awake()
-    {
-        maxHP = PersistentService.Instance.GetPlayerMaxHP();
-    }
     void OnDestroy()
     {
         delayTween?.Kill();
@@ -38,6 +35,7 @@ public class PlayerHealthBar : MonoBehaviour
     /// </summary>
     public void SetHP(float current)
     {
+        float maxHP = PersistentService.Instance.MaxHP;
         float ratio = Mathf.Clamp01(current / maxHP);
 
         // 前景即时更新：通过 anchorMax.x 控制填充宽度
@@ -51,6 +49,8 @@ public class PlayerHealthBar : MonoBehaviour
             ratio,
             DelayDuration
         );
+
+        hpText.text = $"{current} / {maxHP}";
     }
     #endregion
 }

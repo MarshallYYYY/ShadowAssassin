@@ -24,6 +24,7 @@ public class EnhanceWindow : MonoBehaviour
     #endregion
     #region Cost
     [Header("Cost")]
+    [SerializeField] private GameObject costGoldCoinUI;
     [SerializeField] private Text costGoldCoinCountText;
     [SerializeField] private Text ownedGoldCoinText;
     [SerializeField] private Transform costItemGroupTransform;
@@ -45,7 +46,7 @@ public class EnhanceWindow : MonoBehaviour
             gameObject.SetActive(false);
         });
 
-        List<Equipment> equipments = PersistentService.Instance.GetAllEquipment();
+        List<Equipment> equipments = PersistentService.Instance.AllEquipments;
         for (int i = 0; i < equipmentsTransform.childCount; i++)
         {
             EquipmentItemUI equipmentItemUI = equipmentsTransform.GetChild(i).GetComponent<EquipmentItemUI>();
@@ -69,20 +70,26 @@ public class EnhanceWindow : MonoBehaviour
         if (currentEquipment.EnhanceLevel >= currentEquipmentSO.EquipmentEnhanceInfos.Length - 1)
             return;
 
-        EquipmentEnhanceLevelInfo nextLevel = currentEquipmentSO.EquipmentEnhanceInfos[currentEquipment.EnhanceLevel + 1];
+        EquipmentEnhanceLevelInfo nextLevelInfo = currentEquipmentSO.EquipmentEnhanceInfos[currentEquipment.EnhanceLevel + 1];
 
         // 扣除金币
-        int currentGold = PersistentService.Instance.GetGoldCoin();
-        PersistentService.Instance.SetGoldCoin(currentGold - nextLevel.GoldCoinCost);
+        PersistentService.Instance.GoldCoin -= nextLevelInfo.GoldCoinCost;
 
         // 扣除材料
-        for (int i = 0; i < nextLevel.CostItems.Count; i++)
+        for (int i = 0; i < nextLevelInfo.CostItems.Count; i++)
         {
-            CostItem costItem = nextLevel.CostItems[i];
+            CostItem costItem = nextLevelInfo.CostItems[i];
             PersistentService.Instance.RemoveInventoryItemById(costItem.InventoryItemSO.Id, costItem.Count);
         }
 
-        // 强化
+        // 增加角色属性
+        EquipmentEnhanceLevelInfo currentLevelInfo = currentEquipmentSO.EquipmentEnhanceInfos[currentEquipment.EnhanceLevel];
+        PersistentService.Instance.AddPlayerAttributes(
+            nextLevelInfo.HP - currentLevelInfo.HP,
+            nextLevelInfo.Attack - currentLevelInfo.Attack,
+            nextLevelInfo.Defense - currentLevelInfo.Defense);
+
+        // 强化等级+1
         currentEquipment.EnhanceLevel++;
 
         // 刷新左侧UI：
@@ -93,12 +100,13 @@ public class EnhanceWindow : MonoBehaviour
         // 刷新右侧UI
         OnEquipmentSelected(currentEquipment);
 
+        // 增加任务进度
         PersistentService.Instance.AddQuestProgress(QuestCodeConstants.Enhance);
     }
     #region EquipmentItemUI 相关
     void OnEnable()
     {
-        ownedGoldCoinText.text = $"({PersistentService.Instance.GetGoldCoin()})";
+        ownedGoldCoinText.text = $"({PersistentService.Instance.GoldCoin})";
         // for (int i = 0; i < equipmentItemUIs.Count; i++)
         // {
         //     equipmentItemUIs[i].Refresh();
@@ -136,7 +144,8 @@ public class EnhanceWindow : MonoBehaviour
             hpText.text = $"生命值： + {currentLevelInfo.HP}";
             attackText.text = $"攻击力： + {currentLevelInfo.Attack}";
             defenseText.text = $"防御值： + {currentLevelInfo.Defense}";
-            costGoldCoinCountText.text = "-";
+            // costGoldCoinCountText.text = "-";
+            costGoldCoinUI.SetActive(false);
             ClearCostItems();
             enhanceButton.interactable = false;
             return;
@@ -147,9 +156,11 @@ public class EnhanceWindow : MonoBehaviour
         defenseText.text = $"防御值： + {currentLevelInfo.Defense}  →  + {nextLevelInfo.Defense}";
 
         // 设置右下角装备升级所需的金币
+        if (costGoldCoinUI.activeSelf is false)
+            costGoldCoinUI.SetActive(true);
         costGoldCoinCountText.text = nextLevelInfo.GoldCoinCost.ToString();
         // 当前金币
-        int ownedGoldCoin = PersistentService.Instance.GetGoldCoin();
+        int ownedGoldCoin = PersistentService.Instance.GoldCoin;
         ownedGoldCoinText.text = $"({ownedGoldCoin})";
         bool isGoldCoinEnough = ownedGoldCoin >= nextLevelInfo.GoldCoinCost;
 

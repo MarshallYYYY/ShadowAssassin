@@ -80,7 +80,7 @@ public class PersistentService : BaseService<PersistentService>
     }
     #endregion
 
-    #region PlayerData（存档文件 和 玩家数据）
+    #region ======= PlayerData（存档文件 和 玩家数据） =======
     /// <summary>
     /// 目标索引对应的存档文件是否存在
     /// </summary>
@@ -129,6 +129,10 @@ public class PersistentService : BaseService<PersistentService>
                     EnhanceLevel = 0,
                 };
                 playerData.Equipments.Add(equipment);
+
+                // 新建Player的时候，将所有装备的初始（0强化）属性添加到playerData上。
+                EquipmentEnhanceLevelInfo zeroEnhanceLevelInfo = equipmentSO.EquipmentEnhanceInfos[0];
+                AddPlayerAttributes(zeroEnhanceLevelInfo.HP, zeroEnhanceLevelInfo.Attack, zeroEnhanceLevelInfo.Defense);
             }
 
             SaveGameTime(index);
@@ -145,16 +149,6 @@ public class PersistentService : BaseService<PersistentService>
     private string GetSaveSlotPath(int index)
     {
         return $"{Application.persistentDataPath}/{PersistentConstants.SaveSlot}{index}.json";
-    }
-    /// <summary>
-    /// 保存游戏
-    /// </summary>
-    /// <param name="index"></param>
-    private void SaveGame(int index)
-    {
-        string path = GetSaveSlotPath(index);
-        string jsonStr = JsonConvert.SerializeObject(playerData);
-        File.WriteAllText(path, jsonStr);
     }
     #endregion
     #endregion
@@ -212,6 +206,18 @@ public class PersistentService : BaseService<PersistentService>
         // 重置计时基点
         startGameTime = nowTime;
     }
+    #region 保存游戏
+    /// <summary>
+    /// 保存游戏
+    /// </summary>
+    /// <param name="index"></param>
+    private void SaveGame(int index)
+    {
+        string path = GetSaveSlotPath(index);
+        string jsonStr = JsonConvert.SerializeObject(playerData);
+        File.WriteAllText(path, jsonStr);
+    }
+    #endregion
     #endregion
     #region CharacterInformationPage
     /// <summary>
@@ -223,15 +229,8 @@ public class PersistentService : BaseService<PersistentService>
         return playerData;
     }
     #endregion
-    #region Purchase & BlindBox
-    public int GetGoldCoin()
-    {
-        return playerData.GoldCoin;
-    }
-    public void SetGoldCoin(int goldCoin)
-    {
-        playerData.GoldCoin = goldCoin;
-    }
+    #region Purchase & BlindBox & Equipment Enhance
+    public int GoldCoin { get => playerData.GoldCoin; set => playerData.GoldCoin = value; }
     #endregion
     #region Inventory
     public void AddInventoryItem(InventoryItem item)
@@ -263,10 +262,7 @@ public class PersistentService : BaseService<PersistentService>
     }
     #endregion
     #region Quest
-    public List<Quest> GetAllQuest()
-    {
-        return playerData.Quests;
-    }
+    public List<Quest> AllQuests => playerData.Quests;
     // public Quest GetQuest(string questCode)
     // {
     //     return playerData.Quests.Find(quest => quest.QuestCode == questCode);
@@ -295,11 +291,8 @@ public class PersistentService : BaseService<PersistentService>
     }
     #endregion
 
-    #region Equipment
-    public List<Equipment> GetAllEquipment()
-    {
-        return playerData.Equipments;
-    }
+    #region Equipment Enhance
+    public List<Equipment> AllEquipments => playerData.Equipments;
     // public Equipment GetEquipment(string equipmentName)
     // {
     //     return playerData.Equipments.Find(equipment => equipment.EquipmentName == equipmentName);
@@ -331,10 +324,23 @@ public class PersistentService : BaseService<PersistentService>
             }
         }
     }
+    /// <summary>
+    /// 增加角色属性数值
+    /// </summary>
+    /// <param name="hp"></param>
+    /// <param name="attack"></param>
+    /// <param name="defense"></param>
+    public void AddPlayerAttributes(float hp, float attack, float defense)
+    {
+        playerData.HP += hp;
+        playerData.Attack += attack;
+        playerData.Defense += defense;
+    }
     #endregion
 
-    public float GetPlayerMaxHP()
-    {
-        return playerData.HP;
-    }
+    #region 战斗相关
+    public float MaxHP => playerData.HP;
+    public float Attack => playerData.Attack;
+    public float Defense => playerData.Defense;
+    #endregion
 }

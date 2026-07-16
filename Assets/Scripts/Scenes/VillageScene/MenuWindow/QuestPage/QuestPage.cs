@@ -16,7 +16,7 @@ public class QuestPage : MonoBehaviour
             Destroy(scrollContent.GetChild(i).gameObject);
         }
 
-        List<Quest> quests = PersistentService.Instance.GetAllQuest();
+        List<Quest> quests = PersistentService.Instance.AllQuests;
         for (int i = 0; i < quests.Count; i++)
         {
             Quest quest = quests[i];

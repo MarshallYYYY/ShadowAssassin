@@ -66,14 +66,13 @@ public class BlindBoxWindow : MonoBehaviour
         AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         DOTween.KillAll(true); // 终止上一轮残留的所有 tween
 
-        int goldCoin = PersistentService.Instance.GetGoldCoin();
         int totalPrice = count switch
         {
             1 => 100,
             10 => 900,
             _ => 0,
         };
-        if (goldCoin < totalPrice)
+        if (PersistentService.Instance.GoldCoin < totalPrice)
         {
             ShowTipPanel("金币好像不够了呢");
             yield break;
@@ -83,7 +82,6 @@ public class BlindBoxWindow : MonoBehaviour
         open10BlindBoxButton.interactable = false;
         backButton.interactable = false;
         ClearBlindBoxs();
-
 
         // 生成所有物品数据
         var items = new List<InventoryItem>();
@@ -98,7 +96,7 @@ public class BlindBoxWindow : MonoBehaviour
         yield return PlayOpenBlindBoxAnim(items, count);
 
         // 扣钱
-        PersistentService.Instance.SetGoldCoin(goldCoin - totalPrice);
+        PersistentService.Instance.GoldCoin -= totalPrice;
         PersistentService.Instance.AddQuestProgress(QuestCodeConstants.BlindBox);
         ShowTipPanel($"成功开启{count}个盲盒！");
 

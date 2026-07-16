@@ -27,10 +27,10 @@ MonoBehaviour:
     TotalFrame: 144
     EnterHitFrame: 45
     EnterFollowThroughFrame: 85
-    Damage: 7
+    Damage: 30
   - Name: "\u7AD6\u5411\u653B\u51FB"
     Clip: {fileID: -203655887218126122, guid: a0b14140fdccf3743bf443131759268c, type: 3}
     TotalFrame: 136
     EnterHitFrame: 35
     EnterFollowThroughFrame: 70
-    Damage: 4
+    Damage: 20

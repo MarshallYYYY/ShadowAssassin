@@ -30,7 +30,7 @@ public class PurchaseWindow : MonoBehaviour
             AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
             gameObject.SetActive(false);
         });
-        goldCoinText.text = PersistentService.Instance.GetGoldCoin().ToString();
+        goldCoinText.text = PersistentService.Instance.GoldCoin.ToString();
         InitMerchantGoods();
         purchaseButton.onClick.AddListener(OnPurchaseButtonClicked);
 
@@ -66,7 +66,7 @@ public class PurchaseWindow : MonoBehaviour
     void OnEnable()
     {
         goodsUIs.ForEach(goodsUI => goodsUI.Refresh());
-        goldCoinText.text = PersistentService.Instance.GetGoldCoin().ToString();
+        goldCoinText.text = PersistentService.Instance.GoldCoin.ToString();
     }
     private void OnPurchaseButtonClicked()
     {
@@ -82,8 +82,8 @@ public class PurchaseWindow : MonoBehaviour
             return;
         }
 
-        int goldCoin = PersistentService.Instance.GetGoldCoin();
-        Debug.Log(totalPrice + ", " + goldCoin);
+        int goldCoin = PersistentService.Instance.GoldCoin;
+        Debug.Log($"需要金币：{totalPrice}，当前持有金币：{goldCoin}");
         if (goldCoin < totalPrice)
         {
             ShowTipPanel("金币好像不够了呢");
@@ -91,8 +91,9 @@ public class PurchaseWindow : MonoBehaviour
         }
 
         // 扣钱 + 加物品到背包
-        PersistentService.Instance.SetGoldCoin(goldCoin - totalPrice);
-        goldCoinText.text = PersistentService.Instance.GetGoldCoin().ToString();
+        goldCoin -= totalPrice;
+        goldCoinText.text = goldCoin.ToString();
+        PersistentService.Instance.GoldCoin = goldCoin;
         foreach (GoodsUI goodsUI in goodsUIs)
         {
             for (int i = 0; i < goodsUI.Quantity; i++)

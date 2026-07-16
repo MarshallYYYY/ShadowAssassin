@@ -56,7 +56,8 @@ public class EnemyAttackState : IState
                 if (isHitboxActive is false && enterHitTime <= attackTimer && attackTimer < enterFollowThroughTime)
                 {
                     bool isPlayHitAnim = currentAttackAnimSO.Clip.name == EnemyAnimConstants.HorizontalAttack;
-                    enemy.EnableHitbox(currentAttackAnimSO.Damage, isPlayHitAnim);
+                    float damage = Mathf.Max(currentAttackAnimSO.Damage - PersistentService.Instance.Defense, 1f);
+                    enemy.EnableHitbox(damage, isPlayHitAnim);
                     isHitboxActive = true;
                 }
                 // 进入收尾阶段 → 关闭伤害盒

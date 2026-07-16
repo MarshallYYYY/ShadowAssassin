@@ -157,7 +157,7 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
         separatorTemplate.gameObject.SetActive(false);
 
         // 初始化血量
-        currentHP = PersistentService.Instance.GetPlayerMaxHP();
+        currentHP = PersistentService.Instance.MaxHP;
         // 保留 ? 是因为在 VillageScene 中没有血条UI
         playerHealthBar?.SetHP(currentHP);
 
@@ -333,7 +333,7 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
     {
         if (weaponHitbox != null && currentAttackAnimSO != null)
         {
-            weaponHitbox.EnableHitbox(currentAttackAnimSO.Damage);
+            weaponHitbox.EnableHitbox(currentAttackAnimSO.Damage + PersistentService.Instance.Attack);
         }
     }
 

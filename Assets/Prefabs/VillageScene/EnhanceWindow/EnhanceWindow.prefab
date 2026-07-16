@@ -954,6 +954,7 @@ MonoBehaviour:
   hpText: {fileID: 4652383247979487817}
   attackText: {fileID: 3208048822825745192}
   defenseText: {fileID: 8997226056094812962}
+  costGoldCoinUI: {fileID: 6608382524735562167}
   costGoldCoinCountText: {fileID: 8646618374216457025}
   ownedGoldCoinText: {fileID: 7924046206830173668}
   costItemGroupTransform: {fileID: 3368631846236153987}
@@ -2516,6 +2517,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CostGoldCoinUI
       objectReference: {fileID: 0}
+    - target: {fileID: 451869857426359570, guid: 70553c9816506804d8fc2ca7b1b582e4, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1685246312251269223, guid: 70553c9816506804d8fc2ca7b1b582e4, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -40
@@ -2648,6 +2653,11 @@ PrefabInstance:
 --- !u!224 &511782392446706016 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6551288879814280645, guid: 70553c9816506804d8fc2ca7b1b582e4, type: 3}
+  m_PrefabInstance: {fileID: 6769171758321362085}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &6608382524735562167 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 451869857426359570, guid: 70553c9816506804d8fc2ca7b1b582e4, type: 3}
   m_PrefabInstance: {fileID: 6769171758321362085}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &7924046206830173668 stripped
