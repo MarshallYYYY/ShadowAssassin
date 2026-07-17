@@ -47,7 +47,28 @@ public class PlayerAttackState : IState
         player.CurrentAnimTime += Time.deltaTime;
         player.ComboSlider.value = player.CurrentAnimTime;
 
-        // 2. 武器伤害判定窗口：EnterHitTime --- EnterFollowThroughTime
+        // 2. 锁定目标死亡 → 立即取消锁定（攻击状态下 LocomotionState 的检测不会执行）
+        if (player.IsLock && player.LockTarget != null)
+        {
+            EnemyController lockEnemy = player.LockTarget.GetComponent<EnemyController>();
+            if (lockEnemy != null && lockEnemy.IsDead)
+            {
+                player.ClearLock();
+            }
+        }
+
+        // 3. 锁定状态下持续朝向敌人
+        if (player.IsLock && player.LockTarget != null)
+        {
+            Vector3 dir = player.LockTarget.position - player.transform.position;
+            dir.y = 0f;
+            if (dir.sqrMagnitude > 0.001f)
+            {
+                player.transform.rotation = Quaternion.LookRotation(dir);
+            }
+        }
+
+        // 4. 武器伤害判定窗口：EnterHitTime --- EnterFollowThroughTime
         AttackAnimSO currentAttackAnimSO = player.CurrentAttackAnimSO;
         if (currentAttackAnimSO != null)
         {
@@ -68,7 +89,7 @@ public class PlayerAttackState : IState
             }
         }
 
-        // 3. 处理连击输入
+        // 5. 处理连击输入
         List<AttackAnimSO> lightAttackAnims = player.AttackAnimDataBaseSO.LightAttackAnims;
         if (player.AttackType != PlayerAttackType.None
             && player.ComboIndex > 0
@@ -96,7 +117,7 @@ public class PlayerAttackState : IState
             player.AttackType = PlayerAttackType.None;
         }
 
-        // 4. 动画播完 → 切回 LocomotionState（LocomotionState.OnEnter 会自动 CrossFade）
+        // 6. 动画播完 → 切回 LocomotionState（LocomotionState.OnEnter 会自动 CrossFade）
         if (player.CurrentAnimTime >= player.CurrentAnimTotalTime)
         {
             // 重攻击的 attackType 不在连击逻辑中消费，需要在此清零，

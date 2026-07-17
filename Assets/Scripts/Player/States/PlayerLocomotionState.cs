@@ -25,6 +25,12 @@ public class PlayerLocomotionState : IState
 
     public void OnUpdate()
     {
+
+        /* 不能删。
+        虽然当前敌人只能被玩家的武器 hitbox 击杀（只在 `PlayerAttackState` 期间），`PlayerAttackState` 中的检查理论上能覆盖所有情况。
+        但 `PlayerLocomotionState` 中的检查是**安全兜底**——成本极低（锁定时每帧一次 `GetComponent`），
+        且能防御未来可能新增的伤害来源（环境陷阱、DoT、友军伤害等）。两个 State 各自保证自身状态正确，属于防御性编程，不是冗余。
+        */
         // 1. 锁定目标死亡 → 自动取消锁定
         if (player.IsLock && player.LockTarget != null)
         {

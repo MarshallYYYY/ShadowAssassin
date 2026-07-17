@@ -45,6 +45,7 @@ public class WeaponHitbox : MonoBehaviour
         if (Random.value < PersistentService.Instance.CriticalRate / 100f)
         {
             damage *= 2f;
+            Debug.Log("暴击：" + damage);
         }
         enemy.TakeDamage(damage);
     }

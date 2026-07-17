@@ -379,14 +379,22 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
     }
     #endregion
 
-    #region 敌人死亡后，取消锁定
+    #region 敌人死亡后，切换锁定或取消锁定
     /// <summary>
-    /// 取消锁定，清空锁定目标
+    /// 锁定目标死亡时调用：自动切换到最近的存活敌人，没有则解除锁定
     /// </summary>
     public void ClearLock()
     {
-        isLock = false;
-        lockTarget = null;
+        EnemyController nearestEnemy = FindNearestEnemy();
+        if (nearestEnemy != null)
+        {
+            lockTarget = nearestEnemy.transform;
+        }
+        else
+        {
+            isLock = false;
+            lockTarget = null;
+        }
     }
     #endregion
 

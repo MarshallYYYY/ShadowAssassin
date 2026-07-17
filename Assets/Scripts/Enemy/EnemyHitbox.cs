@@ -43,6 +43,7 @@ public class EnemyHitbox : MonoBehaviour
         if (Random.value < PersistentService.Instance.DodgeRate / 100f)
         {
             damage = 0f;
+            Debug.Log("闪避");
         }
         playerController.TakeDamage(damage, currentShouldPlayHitAnim);
     }
