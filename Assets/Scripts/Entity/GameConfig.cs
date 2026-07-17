@@ -15,4 +15,6 @@ public class GameConfig
     /// SFX = Sound Effects（音效）
     /// </summary>
     public float SfxVolume { get; set; } = 1f;
+
+    public float LookSensitivity { get; set; } = 1f;
 }

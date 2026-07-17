@@ -74,6 +74,9 @@ public class PlayerLocomotionState : IState
     {
         Vector2 moveInput = player.MoveInput;
 
+        // 自由移动不使用 AxisX，确保从锁定切换回来时归零
+        UpdateAxis(AnimatorConstants.AxisX, 0);
+
         if (moveInput != Vector2.zero)
         {
             // 将二维输入转换为三维方向
@@ -130,7 +133,6 @@ public class PlayerLocomotionState : IState
     #endregion
 
     #region 辅助方法
-    private const float PlayerRotationSmoothTime = 0.1f;
     /// <summary>
     /// 平滑旋转到指定方向（XZ 平面），可叠加额外角度（如相机 Y 轴角度）
     /// </summary>
@@ -138,7 +140,7 @@ public class PlayerLocomotionState : IState
     {
         float targetRotation = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + extraAngle;
         float rotation = Mathf.SmoothDampAngle(
-            player.transform.eulerAngles.y, targetRotation, ref velocity, PlayerRotationSmoothTime);
+            player.transform.eulerAngles.y, targetRotation, ref velocity, Constants.RotationSmoothTime);
         player.transform.rotation = Quaternion.Euler(0, rotation, 0);
     }
     /// <summary>

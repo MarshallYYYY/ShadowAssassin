@@ -10,24 +10,34 @@ public class SettingsPage : MonoBehaviour
     [SerializeField] private Slider masterSlider;
     [SerializeField] private Slider bgmSlider;
     [SerializeField] private Slider sfxSlider;
+    [SerializeField] private Slider lookSlider;
 
     [Header("Button")]
     [SerializeField] private Button saveButton;
     [SerializeField] private Button cancelButton;
 
+    private const float MinSensitivity = 0.01f;
+    private const float MaxSensitivity = 3f;
     void Awake()
     {
-        masterSlider.onValueChanged.AddListener(OnSliderValueChanged);
-        bgmSlider.onValueChanged.AddListener(OnSliderValueChanged);
-        sfxSlider.onValueChanged.AddListener(OnSliderValueChanged);
+        masterSlider.onValueChanged.AddListener(OnVolumeSliderValueChanged);
+        bgmSlider.onValueChanged.AddListener(OnVolumeSliderValueChanged);
+        sfxSlider.onValueChanged.AddListener(OnVolumeSliderValueChanged);
+
+        lookSlider.onValueChanged.AddListener(OnLookSliderValueChanged);
 
         saveButton.onClick.AddListener(OnSaveButtonClicked);
         cancelButton.onClick.AddListener(OnCancelButtonClicked);
     }
-
-    private void OnSliderValueChanged(float arg0)
+    private void OnVolumeSliderValueChanged(float arg0)
     {
         AudioService.Instance.SetAudioSourceVolume(masterSlider.value, bgmSlider.value, sfxSlider.value);
+    }
+    private float lookSensitivity;
+    private void OnLookSliderValueChanged(float arg0)
+    {
+        lookSensitivity = Mathf.Lerp(MinSensitivity, MaxSensitivity, arg0);
+        Debug.Log(lookSensitivity);
     }
 
     void OnEnable()
@@ -38,7 +48,7 @@ public class SettingsPage : MonoBehaviour
     private void OnSaveButtonClicked()
     {
         AudioService.Instance.PlaySfx(AudioConstants.UIConfirm);
-        PersistentService.Instance.SetGameConfigVolume(masterSlider.value, bgmSlider.value, sfxSlider.value);
+        PersistentService.Instance.SetGameConfig(masterSlider.value, bgmSlider.value, sfxSlider.value, lookSensitivity);
         // 实时音量已由 Slider onValueChanged 处理，无需重复调用
     }
     private void OnCancelButtonClicked()
@@ -47,7 +57,7 @@ public class SettingsPage : MonoBehaviour
         SetSlidersValue();
     }
     /// <summary>
-    /// 恢复 Slider 到已保存的音量值
+    /// 恢复 Slider 到已保存的数值
     /// </summary>
     private void SetSlidersValue()
     {
@@ -55,5 +65,7 @@ public class SettingsPage : MonoBehaviour
         masterSlider.value = masterVolume;
         bgmSlider.value = bgmVolume;
         sfxSlider.value = sfxVolume;
+
+        lookSlider.value = Mathf.InverseLerp(MinSensitivity, MaxSensitivity, PersistentService.Instance.LookSensitivity);
     }
 }

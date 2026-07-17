@@ -60,12 +60,19 @@ public class PersistentService : BaseService<PersistentService>
     {
         return gameConfig.LastSelectedSaveSlotIndex;
     }
-    public void SetGameConfigVolume(float masterVolume, float bgmVolume, float sfxVolume)
+    public void SetGameConfig(float masterVolume, float bgmVolume, float sfxVolume, float lookSensitivity)
     {
         gameConfig.MasterVolume = masterVolume;
         gameConfig.BgmVolume = bgmVolume;
         gameConfig.SfxVolume = sfxVolume;
+
+        gameConfig.LookSensitivity = lookSensitivity;
         SaveGameConfigFile();
+    }
+    private void SaveGameConfigFile()
+    {
+        string jsonStr = JsonConvert.SerializeObject(gameConfig);
+        File.WriteAllText(gameConfigPath, jsonStr);
     }
     public void GetVolume(out float masterVolume, out float bgmVolume, out float sfxVolume)
     {
@@ -73,11 +80,7 @@ public class PersistentService : BaseService<PersistentService>
         bgmVolume = gameConfig.BgmVolume;
         sfxVolume = gameConfig.SfxVolume;
     }
-    private void SaveGameConfigFile()
-    {
-        string jsonStr = JsonConvert.SerializeObject(gameConfig);
-        File.WriteAllText(gameConfigPath, jsonStr);
-    }
+    public float LookSensitivity => gameConfig.LookSensitivity;
     #endregion
 
     #region ======= PlayerData（存档文件 和 玩家数据） =======
