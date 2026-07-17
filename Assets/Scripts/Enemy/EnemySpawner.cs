@@ -5,6 +5,8 @@ using UnityEngine;
 /// <summary>
 /// 敌人对象池生成器：预实例化一批 Enemy，通过 Spawn/Despawn 复用。
 /// 挂在 DungeonScene 中的空物体上，配置生成点。
+/// 三波怪物：第1波1只、第2波3只、第3波5只，每波在 spawnPoints 中随机选点，每个点最多生成一只。
+/// 第3波全部清空后触发 OnDungeonClear。
 /// </summary>
 public class EnemySpawner : MonoBehaviour
 {
@@ -14,10 +16,19 @@ public class EnemySpawner : MonoBehaviour
 
     [Header("对象池")]
     [SerializeField] private int poolSize = 10;
-    [SerializeField] private int initialSpawnCount = 3;
 
     [Header("生成点")]
     [SerializeField] private Transform[] spawnPoints;
+
+    [Header("波次配置")]
+    [SerializeField] private float waveInterval = 2f;
+    #endregion
+
+    #region 波次数据
+    private static readonly int[] WaveCounts = { 1, 3, 5 };
+    private int currentWave = 0;
+    private float waveTimer = 0f;
+    private bool isWaitingForNextWave = false;
     #endregion
 
     #region 池数据
@@ -35,7 +46,6 @@ public class EnemySpawner : MonoBehaviour
     #region 生命周期
     void Awake()
     {
-        // 预实例化
         for (int i = 0; i < poolSize; i++)
         {
             EnemyController enemy = Instantiate(enemyPrefab, transform);
@@ -47,12 +57,67 @@ public class EnemySpawner : MonoBehaviour
 
     void Start()
     {
-        // 在生成点生成初始敌人
-        for (int i = 0; i < initialSpawnCount && i < spawnPoints.Length; i++)
+        SpawnWave(0);
+    }
+
+    void Update()
+    {
+        // 当前波次已清空且还有下一波 → 等待间隔后生成下一波
+        if (isWaitingForNextWave)
         {
-            Spawn(spawnPoints[i].position);
+            waveTimer += Time.deltaTime;
+            if (waveTimer >= waveInterval)
+            {
+                isWaitingForNextWave = false;
+                SpawnWave(currentWave);
+            }
         }
     }
+    #endregion
+
+    #region 波次逻辑
+    /// <summary>
+    /// 生成指定波次的敌人
+    /// </summary>
+    private void SpawnWave(int waveIndex)
+    {
+        int spawnCount = WaveCounts[waveIndex];
+        // 从 spawnPoints 中随机选取 spawnCount 个不重复的点
+        List<Vector3> positions = PickRandomSpawnPositions(spawnCount);
+
+        for (int i = 0; i < positions.Count; i++)
+        {
+            Spawn(positions[i]);
+        }
+    }
+
+    /// <summary>
+    /// 从 spawnPoints 中随机选取 count 个不重复的位置
+    /// </summary>
+    private List<Vector3> PickRandomSpawnPositions(int count)
+    {
+        List<Vector3> available = new();
+        for (int i = 0; i < spawnPoints.Length; i++)
+        {
+            available.Add(spawnPoints[i].position);
+        }
+
+        // Fisher-Yates 洗牌后取前 count 个
+        for (int i = 0; i < available.Count - 1 && i < count; i++)
+        {
+            int j = UnityEngine.Random.Range(i, available.Count);
+            // Vector3 temp = available[i];
+            // available[i] = available[j];
+            // available[j] = temp;
+
+            // 元组解构赋值（Tuple deconstruction assignment）
+            (available[i], available[j]) = (available[j], available[i]);
+        }
+
+        int resultCount = Mathf.Min(count, available.Count);
+        return available.GetRange(0, resultCount);
+    }
+
     /// <summary>
     /// 从池中取出一个 Enemy 并放置到指定位置
     /// </summary>
@@ -73,7 +138,6 @@ public class EnemySpawner : MonoBehaviour
     #endregion
 
     #region 公共方法
-
     /// <summary>
     /// 将 Enemy 回收到池中
     /// </summary>
@@ -85,9 +149,22 @@ public class EnemySpawner : MonoBehaviour
         activeEnemies.Remove(enemy);
         enemy.OnDespawn();
         pool.Enqueue(enemy);
+
+        // 当前波次已清空
         if (activeEnemies.Count == 0)
         {
-            OnDungeonClear?.Invoke();
+            currentWave++;
+            if (currentWave >= WaveCounts.Length)
+            {
+                // 第三波清空 → 副本通关
+                OnDungeonClear?.Invoke();
+            }
+            else
+            {
+                // 还有下一波 → 等待间隔后生成
+                isWaitingForNextWave = true;
+                waveTimer = 0f;
+            }
         }
     }
     #endregion
