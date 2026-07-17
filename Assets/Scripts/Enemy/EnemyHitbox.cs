@@ -39,7 +39,12 @@ public class EnemyHitbox : MonoBehaviour
             return;
 
         hitTargets.Add(playerController);
-        playerController.TakeDamage(currentDamage, currentShouldPlayHitAnim);
+        float damage = currentDamage;
+        if (Random.value < PersistentService.Instance.DodgeRate / 100f)
+        {
+            damage = 0f;
+        }
+        playerController.TakeDamage(damage, currentShouldPlayHitAnim);
     }
     #endregion
 

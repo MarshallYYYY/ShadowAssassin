@@ -43,6 +43,8 @@ public class QuestItemUI : MonoBehaviour
         quest.IsClaimed = true;
         claimButton.interactable = false;
         claimText.text = "已领取";
+
+        PersistentService.Instance.AddReward(questSO.GoldCoin, questSO.Exp);
     }
     #endregion
 

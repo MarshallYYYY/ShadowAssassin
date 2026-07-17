@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// 玩家死亡状态：Play（硬切）播放死亡动画，加载村庄场景。
+/// 玩家死亡状态：播放死亡动画，由 DungeonSceneUIManager 监听 OnPlayerDeath 事件显示死亡窗口。
 /// </summary>
 public class PlayerDeadState : IState
 {
@@ -15,9 +15,6 @@ public class PlayerDeadState : IState
     public void OnEnter()
     {
         player.Animator.Play(AnimatorConstants.DeadState);
-        SceneLoadService.Instance.LoadScene(
-            SceneLoadConstants.VillageScene,
-            () => AudioService.Instance.PlayBgm(AudioConstants.BgmVillageScene));
     }
 
     public void OnUpdate()

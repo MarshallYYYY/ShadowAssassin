@@ -41,7 +41,12 @@ public class WeaponHitbox : MonoBehaviour
             return;
 
         hitTargets.Add(enemy);
-        enemy.TakeDamage(currentDamage);
+        float damage = currentDamage;
+        if (Random.value < PersistentService.Instance.CriticalRate / 100f)
+        {
+            damage *= 2f;
+        }
+        enemy.TakeDamage(damage);
     }
     #endregion
 

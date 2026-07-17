@@ -20,6 +20,13 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
     private AfterImageEffect afterImage;
     #endregion
 
+    #region 事件
+    /// <summary>
+    /// 玩家死亡时触发
+    /// </summary>
+    public event Action OnPlayerDeath;
+    #endregion
+
     #region 状态机 和 状态
     private StateMachine<PlayerController> stateMachine;
     private PlayerLocomotionState locomotionState;
@@ -362,6 +369,7 @@ public class PlayerController : MonoBehaviour, IStateMachineOwner
         if (currentHP <= 0f)
         {
             stateMachine.ChangeState(deadState);
+            OnPlayerDeath?.Invoke();
         }
         // 重攻击期间不会被打断，只扣血不播受击动画
         else if (isPlayHitAnim && !isSuperArmor)

@@ -111,9 +111,12 @@ public class StartSceneUIManager : MonoBehaviour
         PersistentService.Instance.SetLastSelectedIndex(index);
         PersistentService.Instance.SetStartGameTimeOnEnterGame(index);
         PersistentService.Instance.SetPlayData(index, isNewGame);
-        SceneLoadService.Instance.LoadScene(
-            SceneLoadConstants.VillageScene,
-            () => AudioService.Instance.PlayBgm(AudioConstants.BgmVillageScene));
+        SceneLoadService.Instance.LoadScene(SceneLoadConstants.VillageScene, OnSceneLoaded);
+        static void OnSceneLoaded()
+        {
+            AudioService.Instance.PlayBgm(AudioConstants.BgmVillageScene);
+            GameManager.Instance.SwitchToPlayMode();
+        }
     }
     private Tween delayTween = null;
     private void ShowTipText()

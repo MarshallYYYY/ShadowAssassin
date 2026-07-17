@@ -10,7 +10,7 @@ public class VillageSceneUIManager : MonoBehaviour
     private void Awake()
     {
         Debug.Log($"当前使用的是存档 {PersistentService.Instance.GetLastSelectedIndex()}");
-        GameManager.Instance.SwitchToPlayMode();
+        // GameManager.Instance.SwitchToPlayMode();
 
         InitMenu();
 

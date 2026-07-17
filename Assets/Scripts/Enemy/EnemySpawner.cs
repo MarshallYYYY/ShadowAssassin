@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,6 +23,13 @@ public class EnemySpawner : MonoBehaviour
     #region 池数据
     private readonly Queue<EnemyController> pool = new();
     private readonly List<EnemyController> activeEnemies = new();
+    #endregion
+
+    #region 事件
+    /// <summary>
+    /// 副本全部敌人清空时触发
+    /// </summary>
+    public event Action OnDungeonClear;
     #endregion
 
     #region 生命周期
@@ -79,11 +87,7 @@ public class EnemySpawner : MonoBehaviour
         pool.Enqueue(enemy);
         if (activeEnemies.Count == 0)
         {
-            Debug.LogError("End");
-            PersistentService.Instance.AddQuestProgress(QuestCodeConstants.Dungeon);
-            SceneLoadService.Instance.LoadScene(
-                SceneLoadConstants.VillageScene,
-                () => AudioService.Instance.PlayBgm(AudioConstants.BgmVillageScene));
+            OnDungeonClear?.Invoke();
         }
     }
     #endregion

@@ -14,8 +14,7 @@ public class CharacterInformationPage : MonoBehaviour
     {
         PlayerData data = PersistentService.Instance.GetPlayerData();
         level.text = data.Level.ToString();
-        // TODO：根据当前Level计算升级所需要的经验值
-        exp.text = data.Exp.ToString();
+        exp.text = $"{data.Exp}/{PersistentService.Instance.GetRequiredExp(data.Level)}";
         hp.text = data.HP.ToString();
         attack.text = data.Attack.ToString();
         defense.text = data.Defense.ToString();

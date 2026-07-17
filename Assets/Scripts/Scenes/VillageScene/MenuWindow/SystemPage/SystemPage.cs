@@ -22,9 +22,12 @@ public class SystemPage : MonoBehaviour
     {
         AudioService.Instance.PlaySfx(AudioConstants.UIButtonClick);
         OnSaveGameButtonClicked();
-        SceneLoadService.Instance.LoadScene(
-            SceneLoadConstants.StartScene,
-            () => AudioService.Instance.PlayBgm(AudioConstants.BgmStartScene));
+        SceneLoadService.Instance.LoadScene(SceneLoadConstants.StartScene, OnSceneLoaded);
+        static void OnSceneLoaded()
+        {
+            AudioService.Instance.PlayBgm(AudioConstants.BgmStartScene);
+            GameManager.Instance.SwitchToUIMode();
+        }
     }
 
     private void OnQuitGameButtonClicked()

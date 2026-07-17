@@ -289,6 +289,48 @@ public class PersistentService : BaseService<PersistentService>
             return;
         quest.ProgressCount++;
     }
+    public void AddReward(int goldCoin, float exp)
+    {
+        playerData.GoldCoin += goldCoin;
+        AddExp(exp);
+    }
+
+    #region 升级
+    /// <summary>
+    /// 当前等级升级所需经验：100 * Level^1.5
+    /// </summary>
+    public float GetRequiredExp(int level)
+    {
+        // return 100f * Mathf.Pow(level, 1.5f);
+        return 100 * level * (level + 1) / 2;
+    }
+
+    /// <summary>
+    /// 每升一级增加的属性
+    /// </summary>
+    private void OnLevelUp()
+    {
+        playerData.HP += 20f;
+        playerData.Attack += 3f;
+        playerData.Defense += 2f;
+        playerData.CriticalRate += 1f;
+        playerData.DodgeRate += 0.5f;
+    }
+
+    /// <summary>
+    /// 增加经验值，连续升级直到经验不足
+    /// </summary>
+    private void AddExp(float exp)
+    {
+        playerData.Exp += exp;
+        while (playerData.Exp >= GetRequiredExp(playerData.Level))
+        {
+            playerData.Exp -= GetRequiredExp(playerData.Level);
+            playerData.Level++;
+            OnLevelUp();
+        }
+    }
+    #endregion
     #endregion
 
     #region Equipment Enhance
@@ -342,5 +384,8 @@ public class PersistentService : BaseService<PersistentService>
     public float MaxHP => playerData.HP;
     public float Attack => playerData.Attack;
     public float Defense => playerData.Defense;
+
+    public float CriticalRate => playerData.CriticalRate;
+    public float DodgeRate => playerData.DodgeRate;
     #endregion
 }
