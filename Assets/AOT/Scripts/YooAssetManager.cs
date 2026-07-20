@@ -180,7 +180,7 @@ public class YooAssetManager : MonoBehaviour
     private InitializationOperation CreateOperationOnHostPlayMode(ResourcePackage package)
     {
         IRemoteServices remoteServices = new RemoteServices(
-            YooAssetConstants.DefaultHostServerURL, YooAssetConstants.FallBackHostServerURL);
+            ServerConfigLoader.DefaultHostServerURL, ServerConfigLoader.FallBackHostServerURL);
 
         // 创建内置文件系统的参数
         FileSystemParameters buildinFileSystemParams = FileSystemParameters.CreateDefaultBuildinFileSystemParameters();
