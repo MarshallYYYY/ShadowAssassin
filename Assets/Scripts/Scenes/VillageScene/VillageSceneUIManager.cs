@@ -31,8 +31,13 @@ public class VillageSceneUIManager : MonoBehaviour
             menuWindow.SetActive(true);
         }
     }
+    [SerializeField] private GameObject cube;
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            cube.SetActive(!cube.activeSelf);
+        }
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             OnMenuButtonClicked();
