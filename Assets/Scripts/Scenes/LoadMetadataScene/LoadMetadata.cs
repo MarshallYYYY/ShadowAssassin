@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using HybridCLR;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using YooAsset;
 
@@ -140,9 +141,21 @@ public class LoadMetadata : MonoBehaviour
     private IEnumerator LoadScene()
     {
         var package = YooAssets.GetPackage(YooAssetConstants.PackageName);
+        Scene oldActiveScene = SceneManager.GetActiveScene();
         SceneHandle handle = package.LoadSceneAsync(SceneLoadConstants.StartScene);
         yield return handle.Task;
         Debug.Log("场景名称：" + handle.SceneName);
+
+        // Additive 模式不切换 Active Scene，手动激活并卸载旧场景，避免 RenderSettings 残留导致后续场景偏暗
+        Scene newScene = handle.SceneObject;
+        if (newScene.IsValid())
+        {
+            SceneManager.SetActiveScene(newScene);
+        }
+        if (oldActiveScene.IsValid() && oldActiveScene != newScene)
+        {
+            SceneManager.UnloadSceneAsync(oldActiveScene);
+        }
     }
     #endregion
     #endregion

@@ -2,6 +2,7 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using YooAsset;
 
@@ -44,6 +45,7 @@ public class SceneLoadService : BaseService<SceneLoadService>
 
         // 3. 开始异步加载场景
         ResourcePackage package = YooAssets.GetPackage(YooAssetConstants.PackageName);
+        Scene oldActiveScene = SceneManager.GetActiveScene();
         SceneHandle handle = package.LoadSceneAsync(sceneLocation);
 
         // 进度条动态刷新：虚假进度 + 真实进度取较小值，避免虚假进度超过真实进度
@@ -70,6 +72,30 @@ public class SceneLoadService : BaseService<SceneLoadService>
         yield return new WaitForSeconds(0.2f);
 
         yield return handle.Task;
+        // YooAsset LoadSceneAsync 默认 Additive 模式，不卸载旧场景、不切换 Active Scene，
+        // 导致旧场景的 RenderSettings（雾、环境光、LightmapSettings）残留，新场景偏暗。
+        // 需要：① 激活新场景 ② 卸载旧场景 ③ 刷新环境光照，让 Unity 使用新场景的光照设置。
+        Scene newScene = handle.SceneObject;
+        if (newScene.IsValid())
+        {
+            SceneManager.SetActiveScene(newScene);
+        }
+        else
+        {
+            newScene = SceneManager.GetSceneByPath(sceneLocation);
+            if (newScene.IsValid())
+            {
+                SceneManager.SetActiveScene(newScene);
+            }
+        }
+
+        // 卸载旧场景，彻底清除残留的 RenderSettings
+        if (oldActiveScene.IsValid() && oldActiveScene != newScene)
+        {
+            SceneManager.UnloadSceneAsync(oldActiveScene);
+        }
+
+        DynamicGI.UpdateEnvironment();
         Debug.Log("场景名称：" + handle.SceneName);
         onSceneLoaded?.Invoke();
 
