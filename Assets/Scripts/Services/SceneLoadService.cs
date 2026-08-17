@@ -80,14 +80,6 @@ public class SceneLoadService : BaseService<SceneLoadService>
         {
             SceneManager.SetActiveScene(newScene);
         }
-        else
-        {
-            newScene = SceneManager.GetSceneByPath(sceneLocation);
-            if (newScene.IsValid())
-            {
-                SceneManager.SetActiveScene(newScene);
-            }
-        }
 
         // 卸载旧场景，彻底清除残留的 RenderSettings
         if (oldActiveScene.IsValid() && oldActiveScene != newScene)
