@@ -6,8 +6,7 @@
 # See: https://github.com/github/gitignore/tree/main/Global
 #
 
-README2.md
-Test.md
+Cowork
 TJGenerators*
 
 .vscode/

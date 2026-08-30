@@ -38,6 +38,10 @@ public class EnemyController : MonoBehaviour, IStateMachineOwner
     private float lastAttackTime;
     private bool isDead = false;
     private EnemyHealthBar enemyHealthBar;
+    /// <summary>
+    /// 缓存的 Player Transform，避免每帧 FindGameObjectWithTag 造成 GC
+    /// </summary>
+    private Transform playerTransform;
     #endregion
 
     #region 事件
@@ -102,6 +106,11 @@ public class EnemyController : MonoBehaviour, IStateMachineOwner
         deadState = new EnemyDeadState(this);
 
         enemyHealthBarRoot = GameObject.Find("EnemyHealthBarRoot").transform;
+
+        // 一次性缓存 Player 引用（Player 是场景物体，Awake 时必存在），
+        // 替代 DistanceToPlayer/GetPlayerTransform 中每帧的 FindGameObjectWithTag
+        GameObject player = GameObject.FindGameObjectWithTag(Constants.PlayerTag);
+        playerTransform = player != null ? player.transform : null;
     }
 
     void Update()
@@ -220,23 +229,21 @@ public class EnemyController : MonoBehaviour, IStateMachineOwner
     }
 
     /// <summary>
-    /// 获取与 Player 的距离
+    /// 获取与 Player 的距离（使用缓存引用，无每帧查找开销）
     /// </summary>
     public float DistanceToPlayer()
     {
-        GameObject player = GameObject.FindGameObjectWithTag(Constants.PlayerTag);
-        if (player == null)
+        if (playerTransform == null)
             return float.MaxValue;
-        return Vector3.Distance(transform.position, player.transform.position);
+        return Vector3.Distance(transform.position, playerTransform.position);
     }
 
     /// <summary>
-    /// 获取 Player 的 Transform
+    /// 获取 Player 的 Transform（使用缓存引用，无每帧查找开销）
     /// </summary>
     public Transform GetPlayerTransform()
     {
-        GameObject player = GameObject.FindGameObjectWithTag(Constants.PlayerTag);
-        return player.transform;
+        return playerTransform;
     }
 
     /// <summary>

@@ -87,6 +87,7 @@ public class SceneLoadService : BaseService<SceneLoadService>
             SceneManager.UnloadSceneAsync(oldActiveScene);
         }
 
+        // 强制刷新全局 RenderSettings 的环境光
         DynamicGI.UpdateEnvironment();
         Debug.Log("场景名称：" + handle.SceneName);
         onSceneLoaded?.Invoke();

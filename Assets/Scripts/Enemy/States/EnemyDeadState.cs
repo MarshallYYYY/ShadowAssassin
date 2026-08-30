@@ -31,8 +31,10 @@ public class EnemyDeadState : IState
         if (characterController != null)
             characterController.enabled = false;
 
-        CapsuleCollider capsuleCollider = enemy.GetComponent<CapsuleCollider>();
-        if (capsuleCollider != null)
+        // CapsuleCollider capsuleCollider = enemy.GetComponent<CapsuleCollider>();
+        // if (capsuleCollider != null)
+        //     capsuleCollider.enabled = false;
+        if (enemy.TryGetComponent(out CapsuleCollider capsuleCollider))
             capsuleCollider.enabled = false;
     }
 
